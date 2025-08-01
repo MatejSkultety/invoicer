@@ -1,22 +1,22 @@
 version: '3.8'
 services:
-  backend:
-    build: ./backend
+  invoicer-backend:
+    build: ./invoicer-backend
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app
+      - ./invoicer-backend:/app
     depends_on:
-      - db
-  frontend:
-    build: ./frontend
+      - invoicer-db
+  invoicer-frontend:
+    build: ./invoicer-frontend
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app
+      - ./invoicer-frontend:/app
     depends_on:
-      - backend
-  db:
+      - invoicer-backend
+  invoicer-db:
     image: postgres:15
     environment:
       POSTGRES_USER: invoicer
