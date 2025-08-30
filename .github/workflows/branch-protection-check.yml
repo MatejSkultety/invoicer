@@ -1,0 +1,33 @@
+name: Branch Protection Check
+
+on:
+  schedule:
+    # Check branch protection daily at 9 AM UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    # Allow manual triggering
+
+jobs:
+  verify-protection:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Verify branch protection
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        python3 setup_branch_protection.py --verify-only || true
+    
+    - name: Check protection status
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Use GitHub CLI to check branch protection
+        echo "Checking branch protection for main branch:"
+        gh api repos/${{ github.repository }}/branches/main/protection --jq '.required_status_checks, .required_pull_request_reviews, .enforce_admins' || echo "No protection configured"

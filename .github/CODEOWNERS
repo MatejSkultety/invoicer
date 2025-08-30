@@ -1,0 +1,31 @@
+# CODEOWNERS file for the invoicer repository
+#
+# This file defines code ownership for automatic review assignment.
+# When a pull request is opened that modifies files listed here,
+# the specified users or teams will automatically be requested for review.
+#
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global ownership - MatejSkultety owns everything by default
+* @MatejSkultety
+
+# Specific patterns (examples - uncomment and modify as needed)
+# Python files
+# *.py @MatejSkultety
+
+# Configuration files
+# *.yml @MatejSkultety
+# *.yaml @MatejSkultety
+# *.json @MatejSkultety
+# *.toml @MatejSkultety
+
+# Documentation
+# *.md @MatejSkultety
+# docs/ @MatejSkultety
+
+# GitHub workflows and configuration
+# .github/ @MatejSkultety
+
+# Security and licensing
+# LICENSE @MatejSkultety
+# SECURITY.md @MatejSkultety
