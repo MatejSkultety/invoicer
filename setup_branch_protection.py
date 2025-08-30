@@ -188,7 +188,7 @@ def main():
     repo = get_repository()
 
     print(f"Repository: {repo}")
-    print(f"Branch: main")
+    print("Branch: main")
 
     # Check current protection status
     print("\n🔍 Checking current protection status...")
