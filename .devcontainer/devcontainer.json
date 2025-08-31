@@ -1,0 +1,27 @@
+{
+  "name": "Python + Node.js + Docker",
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.10-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers-extra/features/apt-packages:1": {
+      "packages": [
+        "git",
+        "curl",
+        "wget",
+        "unzip",
+        "build-essential",
+        "libssl-dev",
+        "libffi-dev",
+        "openssh-client",
+        "ca-certificates",
+        "procps",
+        "lsof",
+        "iproute2"
+      ]
+    }
+  },
+  "forwardPorts": [3000, 8000]
+}
