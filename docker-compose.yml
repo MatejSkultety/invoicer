@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  invoicer-backend:
+    build: ./invoicer-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./invoicer-backend:/app
+    depends_on:
+      - invoicer-db
+  invoicer-frontend:
+    build: ./invoicer-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./invoicer-frontend:/app
+    depends_on:
+      - invoicer-backend
+  invoicer-db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: invoicer
+      POSTGRES_PASSWORD: invoicer
+      POSTGRES_DB: invoicer
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+volumes:
+  db_data:
