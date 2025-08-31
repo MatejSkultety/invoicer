@@ -1,7 +1,11 @@
-# CODEOWNERS file for the invoicer repository
-#
-# This file defines code ownership for automatic review assignment.
-# When a pull request is opened, @MatejSkultety will automatically be requested for review.
+# Global code owners for all files in the repository
+# This ensures that all changes require review and approval from the repository owner
+# before they can be merged into the main branch.
 
-# Global ownership - all files require review from MatejSkultety
+# Repository owner must approve all changes
 * @MatejSkultety
+
+# Specific protection for critical files
+README.md @MatejSkultety
+LICENSE @MatejSkultety
+.github/ @MatejSkultety
