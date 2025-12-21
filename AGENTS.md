@@ -1,160 +1,210 @@
-# AGENTS.md — Instructions for coding agents (Codex/Copilot)
+# AGENTS.md — Repository instructions for coding agents (Codex/Copilot)
 
-AGENTS.md is the persistent “README for agents”: a predictable place to store project context and rules so new AI threads don’t start from zero. :contentReference[oaicite:3]{index=3}
+This file is the **single source of truth** for how AI coding agents should work in this repo.
+Treat it like a “README for agents”: persistent context + non-negotiable rules + workflow.
 
-Use this file as the single source of truth for how to work in this repository.
+> Important: When generating content intended to be committed, output **plain Markdown/code only**
+> (no citations, no “source markers”, no hidden attribution tags).
+
+---
+
+## 0) Hard rules (non-negotiable)
+
+### ASK FIRST — always
+Before writing or changing code, you MUST:
+1) Restate the goal (1–2 lines)
+2) Ask clarifying questions (grouped; see Section 3)
+3) Propose a small plan (2–6 bullets)
+4) STOP and wait for answers
+
+Only skip questions if:
+- the user explicitly says: “Proceed with these assumptions: …”, OR
+- the task is purely mechanical (formatting, rename, lint) with no product/architecture impact
+
+### No secrets
+- Never commit secrets (tokens, passwords, API keys).
+- Do not paste secrets into code, docs, examples, or tests.
+
+### Small, reviewable changes
+- Keep PRs focused and minimal.
+- Don’t mix refactors with features unless requested.
+
+### Follow existing conventions
+- If the repo already has tools/commands/style, follow them.
+- If something is missing, propose a minimal improvement (prefer a separate PR).
 
 ---
 
 ## 1) Project reality (today)
-- Localhost-first. Do not optimize for production deployment yet unless asked.
+
+- Localhost-first.
 - No login/auth focus yet.
-- MVP: clients + invoices (create + track + download).
-- DB is SQLite right now.
-- Future direction: ability to evolve toward “public” usage later (multi-tenant readiness), but we will not overbuild early.
+- MVP: **clients + invoices** (create, track, download).
+- DB is **SQLite** now.
+- Future direction: should be possible to evolve toward public usage later (e.g., multi-tenant),
+  but do not overbuild early.
 
 ---
 
-## 2) How we work (mandatory workflow)
-For each feature:
-1. Work in a dedicated branch: `feature/<module>-<short-desc>`
-2. Use a new AI thread per feature.
-3. First respond with **questions** (see “ASK-FIRST protocol”).
-4. Only after questions are answered, implement:
-   - code changes
-   - tests
-   - docs updates (so future threads keep context)
-5. End with:
-   - how to run tests (or what you attempted)
-   - list of files changed
+## 2) Repo structure (initial)
 
-Keep PRs small and reviewable.
+This is a monorepo with separate backend and frontend services.
+
+- Backend: `backend/`
+  - App code: `backend/app/`
+  - Domain modules: `backend/app/modules/<module>/`
+  - Tests: `backend/tests/`
+- Frontend: `frontend/`
+  - Source: `frontend/src/`
+  - Domain modules: `frontend/src/modules/<module>/`
+  - Shared utilities: `frontend/src/shared/`
+  - Tests: `frontend/tests/`
+- Architecture decisions: `docs/adr/`
+
+Module names should mirror by **domain concept** only (e.g., `clients`, `invoices`).
+Frontend and backend must NOT share code; they couple only via the API contract.
+
+Do not introduce a new directory layout without discussing it first.
 
 ---
 
-## 3) ASK-FIRST protocol (non-negotiable)
-Agents MUST ask clarifying questions before writing code.
+## 3) ASK-FIRST protocol (how to start every feature)
 
-The only exceptions:
-- The user explicitly says “proceed with assumptions” (and lists them), OR
-- The task is purely mechanical (formatting, renaming files, fixing lint) and has no product/architecture impact.
+### 3.1 Required opening format (every time)
+1) **Goal** (1–2 lines)
+2) **Questions** (grouped; concise)
+3) **Plan** (2–6 bullets)
+4) **Wait** (do not implement yet)
 
-### 3.1 Required behavior
-Before implementing, do the following in order:
+### 3.2 Question checklist (use categories; ask what’s relevant)
+**Goal & acceptance**
+- What should be demonstrably working when this is “done”?
+- Any UX constraints (flow, screens, “must look like X”)?
 
-A) **Restate the goal** in 1–2 lines (what will be delivered).
-B) **Ask clarifying questions**, grouped by category below.
-C) **Propose a small plan** with 2–6 bullets.
-D) Wait for answers. Do not start coding yet.
+**Scope**
+- Which side(s): backend, frontend, or both?
+- What is explicitly out of scope for this branch?
 
-### 3.2 Question checklist (use these categories every time)
-Ask only what’s relevant, but always cover categories that apply.
+**API / UI contract**
+- Backend: endpoints, payloads, status codes, error format?
+- Frontend: route/page, UI states, loading/error handling?
+- Any backwards-compat expectations?
 
-**Product / UX**
-- What is the desired user flow?
-- What are the success criteria (what should I demo when done)?
-- Any constraints (performance, offline use, “must look like X”)?
-
-**API contract**
-- New endpoints? payload shape? versioning?
-- Expected error cases and error format?
-- Backwards compatibility expectations?
-
-**Data model**
-- What entities/fields are needed now vs later?
-- Any uniqueness rules, lifecycle/status rules?
-- Any migration concerns (existing data)?
+**Data & state**
+- Which entities/fields are needed now vs later?
+- Any uniqueness rules?
+- Any state transitions/lifecycle rules?
 
 **Edge cases**
-- What should happen when data is missing/invalid?
-- Concurrency or duplicates?
-- What should be allowed vs rejected?
+- What happens on invalid input / missing data?
+- Duplicate prevention? Concurrency concerns?
 
-**Security / privacy**
+**Security & privacy**
 - Any sensitive fields involved?
-- Logging rules (what must never be logged)?
-- Any authorization boundaries even in localhost mode?
+- Anything that must not be logged or returned by default?
 
-**Operational concerns**
-- Should this run purely in-process or needs a background job?
-- Any docker-compose implications?
+**Ops / local dev**
+- Any docker-compose changes needed?
+- Any env vars to add? Default values?
 
 **Testing**
-- What should be unit-tested vs integration-tested?
-- What is the minimum test coverage for this feature?
+- What’s the happy-path test?
+- What’s the minimal negative/validation test?
 
-**Documentation**
-- What new behavior must be documented?
-- Is this a “decision” that needs an ADR?
+**Docs**
+- Which docs must be updated (module README, ADR, root README)?
 
-### 3.3 If the user doesn’t know yet
-If the user answers “not sure”:
-- propose 2–3 options with tradeoffs
-- recommend one *temporary default*
-- document the decision as “tentative” in docs
-- do NOT hardcode a permanent choice
+### 3.3 If the user says “not sure”
+- Offer 2–3 options with tradeoffs.
+- Recommend a temporary default.
+- Ask permission to proceed with that default.
+- Document the choice as “tentative” in module docs (and ADR if significant).
 
 ---
 
-## 4) Architecture rules (modular monolith, boundaries)
-We build a modular monolith first, with strict module boundaries.
+## 4) Branch + thread workflow (mandatory)
 
-Boundary rules:
-- Modules may not import other modules’ internal implementation details.
-- Cross-module interaction happens through public service interfaces (or explicit shared abstractions).
-- Shared infrastructure (config, logging, db session) must stay in a clearly identified “core” area, wherever it lives in the repo.
+For each feature:
+1) Create branch: `feature/<module>-<short-desc>`
+2) Use a fresh AI thread for that feature
+3) Follow ASK-FIRST protocol
+4) Implement code + tests + docs updates
+5) Merge via PR
 
-Do not impose a directory layout if one does not exist. Instead, maintain boundaries using:
-- clear package/module naming
-- explicit interfaces
-- disciplined imports
-- tests
-
----
-
-## 5) Commands, testing, structure, style, git workflow, boundaries
-Keep instructions here aligned with what exists in the repo. GitHub recommends these core areas for effective agents.md files. :contentReference[oaicite:4]{index=4}
-
-### Commands
-- If commands are documented in the repo, follow them.
-- If not, discover how to run the project from existing files and propose improvements (don’t invent complicated tooling).
-
-### Testing
-- Always add at least:
-  - one happy-path test
-  - one negative/validation test
-- Prefer fast, deterministic tests.
-- If the repo lacks a test runner, propose a minimal setup (smallest useful change).
-
-### Code style
-- Follow existing conventions in the repo.
-- If none exist, propose minimal lint/format tooling in a separate PR (don’t bundle it into unrelated features).
-
-### Git workflow
-- Keep commits scoped and readable.
-- PR description must include:
-  - summary
-  - how to test
-  - docs updated
-
-### Boundaries
-- Enforce module boundaries via imports + interfaces.
-- If a feature cuts across modules, document the boundary and keep responsibilities clear.
+PR description must include:
+- summary of behavior
+- how to run/verify
+- docs updated
 
 ---
 
-## 6) Documentation rule (context preservation)
-Every feature must update docs so future AI threads have context.
+## 5) Architecture rules (modular monolith + module boundaries)
 
-Preferred lightweight approach:
-- Add/extend a module doc explaining behavior/API/flows.
-- For significant decisions, write an ADR (context → decision → consequences is a common template). :contentReference[oaicite:5]{index=5}
+Backend is a modular monolith:
+- Each module owns its API routes, schemas, business logic, and persistence.
+- Modules must not import other modules’ internal implementation details.
+- Cross-module interaction happens through **public service interfaces**.
+
+Frontend is modular by domain:
+- Keep domain UI and API calls in `frontend/src/modules/<module>/`.
+- Keep shared API client/utils/UI in `frontend/src/shared/`.
+- Frontend should not embed backend business rules (backend is source of truth).
+
+Database:
+- SQLite now; keep DB configuration externalized (env-driven).
+- Avoid DB-specific assumptions in application logic.
 
 ---
 
-## 7) Copilot/Codex instruction files
-Some tools also read repository instruction files such as:
-- `.github/copilot-instructions.md`
-- other GitHub instruction file locations
+## 6) Documentation rules (context preservation)
 
-If those exist, keep them minimal and point back to AGENTS.md to avoid conflicting rules. :contentReference[oaicite:6]{index=6}
+Every feature must update docs so future threads inherit context.
+
+Preferred hierarchy:
+1) Update/add a **module README** close to the code:
+   - `backend/app/modules/<module>/README.md`
+   - `frontend/src/modules/<module>/README.md`
+2) If you made a significant or hard-to-reverse decision, write an **ADR** in `docs/adr/`.
+3) Update root `README.md` only for big-picture “how to run” and project overview.
+
+---
+
+## 7) Testing expectations
+
+Each feature should add at least:
+- one happy-path test
+- one negative/validation test
+
+Keep tests fast and deterministic.
+Avoid network calls unless explicitly requested.
+
+---
+
+## 8) Commands (discover, then standardize)
+
+If the repo already defines commands (Makefile, scripts, task runner), use them.
+If not, ask the user what style they prefer and propose minimal conventions.
+
+Typical targets to document (once available):
+- run backend
+- run frontend
+- run tests (backend + frontend)
+- lint/format (backend + frontend)
+
+---
+
+## 9) End-of-response checklist (required)
+
+After implementing a feature, end your response with:
+- How to run/verify (commands)
+- Tests added + how to run them
+- Files changed
+- Docs updated
+- Follow-ups / TODOs (if any)
+
+---
+
+## 10) Optional: scoped agent instructions (future)
+
+If you later add instructions inside subdirectories, keep them consistent and minimal.
+Prefer pointing back to this root AGENTS.md to avoid conflicting guidance.
