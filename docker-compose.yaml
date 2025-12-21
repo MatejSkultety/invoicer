@@ -68,7 +68,10 @@ services:
   # Reverse Proxy
   reverse-proxy:
     <<: [*common-config, *base-service]
-    image: nginx:latest
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: invoicer-nginx:latest
     container_name: invoicer-reverse-proxy
     depends_on:
       frontend:
@@ -76,10 +79,7 @@ services:
       backend:
         condition: service_started
     ports:
-      - "80:80"      # frontend
-      - "8080:8080"  # backend
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - "80:80"      # frontend only - backend is internal!
     networks:
       - main-network
 
