@@ -1,49 +1,60 @@
 # Invoicer
 
-A simple invoicing application with a backend service, containerized using Docker.
+A modular, security-minded invoice management web app.
 
-## Project Structure
+**Planned stack**
+- Backend: FastAPI (Python)
+- Frontend: Vue (likely Vue 3)
+- Local orchestration: Docker Compose
+- Database (now): SQLite
+- Database (later): Postgres (goal: straightforward migration via configuration + migrations)
 
-- `invoicer-backend/` - Python backend service
-	- `main.py` - Entry point for the backend API
-	- `requirements.txt` - Python dependencies
-	- `Dockerfile` - Containerization for the backend
-- `docker-compose.yml` - Orchestrates the backend service
+This repo is developed iteratively with AI (Codex/Copilot):
+- one feature per branch
+- one fresh AI thread per feature
+- every feature updates docs so future AI threads inherit context automatically
 
-## Getting Started
+## MVP scope (Phase 1)
+- Client list (CRUD)
+- Invoices:
+  - create
+  - track status
+  - download as PDF
+- Runs on localhost (no login/auth focus yet)
 
-### Prerequisites
-- [Docker](https://www.docker.com/get-started)
-- [Docker Compose](https://docs.docker.com/compose/)
+Non-goals for now:
+- Multi-user roles/permissions
+- Final choices for communications providers (email/Discord/WhatsApp). We’ll design seams first.
 
-### Running the Application
+---
 
-1. Clone the repository:
-	 ```sh
-	 git clone <repo-url>
-	 cd invoicer
-	 ```
-2. Start the services:
-	 ```sh
-	 docker-compose up --build
-	 ```
-3. The backend API will be available at `http://localhost:<port>` (see `docker-compose.yml` for the port).
+## Repository layout (initial)
+This is a monorepo with two containers/services (backend + frontend). Module naming mirrors by *domain name* only.
 
-### Stopping the Application
-
-```sh
-docker-compose down
-```
-
-## Development
-
-- Backend code is in `invoicer-backend/`.
-- Update dependencies in `requirements.txt`.
-- Rebuild the container after changes:
-	```sh
-	docker-compose up --build
-	```
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+```text
+.
+├─ README.md
+├─ AGENTS.md
+├─ docker-compose.yml
+├─ docs/
+│  └─ adr/
+│     ├─ README.md
+│     └─ 0001-example.md (optional)
+├─ backend/
+│  ├─ Dockerfile
+│  ├─ pyproject.toml
+│  ├─ app/
+│  │  ├─ main.py
+│  │  ├─ core/
+│  │  └─ modules/
+│  │     ├─ clients/
+│  │     └─ invoices/
+│  └─ tests/
+└─ frontend/
+   ├─ Dockerfile
+   ├─ package.json
+   └─ src/
+      ├─ shared/
+      └─ modules/
+         ├─ clients/
+         └─ invoices/
