@@ -1,0 +1,24 @@
+services:
+  backend:
+    build: ./backend
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    environment:
+      - DATABASE_URL=sqlite:///./.data/local.db
+      - CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build: ./frontend
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
