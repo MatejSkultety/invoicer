@@ -1,89 +1,98 @@
 <script setup>
-import { onMounted, ref } from 'vue'
-
-const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-const status = ref('checking...')
-
-onMounted(async () => {
-  try {
-    const response = await fetch(`${apiBase}/health`)
-    if (!response.ok) {
-      throw new Error('Health check failed')
-    }
-    const data = await response.json()
-    status.value = data.status || 'unknown'
-  } catch (error) {
-    status.value = 'unreachable'
-  }
-})
+import { RouterLink, RouterView } from 'vue-router'
+import ToastHost from './shared/ToastHost.vue'
 </script>
 
 <template>
-  <div class="page">
-    <header class="hero">
-      <p class="eyebrow">Local-first invoicing</p>
-      <h1>Invoice App (dev)</h1>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo">Invoicer</span>
+        <span class="tag">dev</span>
+      </div>
+      <nav class="nav">
+        <RouterLink to="/clients">Clients</RouterLink>
+      </nav>
     </header>
-    <section class="card">
-      <p class="label">Backend status</p>
-      <p class="status">{{ status }}</p>
-    </section>
+    <main class="content">
+      <RouterView />
+    </main>
+    <ToastHost />
   </div>
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap");
 
 :global(body) {
   margin: 0;
-  font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
-  background: linear-gradient(140deg, #f7f4ef 0%, #e3edf7 45%, #f1f7f5 100%);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top left, #f6f4f0 0%, #eef3f9 45%, #f2f6f4 100%);
   color: #1f2933;
 }
 
-.page {
-  max-width: 760px;
-  margin: 0 auto;
-  padding: 56px 20px 80px;
+:global(a) {
+  color: inherit;
+  text-decoration: none;
 }
 
-.hero {
-  margin-bottom: 28px;
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.eyebrow {
-  margin: 0 0 10px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  font-size: 12px;
-  color: #52606d;
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid #d7e0ea;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
 }
 
-h1 {
-  margin: 0;
-  font-size: 36px;
-  letter-spacing: 0.2px;
-}
-
-.card {
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid #dbe4ee;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
-  padding: 20px 24px;
-}
-
-.label {
-  margin: 0 0 6px;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 1.6px;
-  color: #6b7280;
-}
-
-.status {
-  margin: 0;
-  font-size: 20px;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-weight: 600;
+  letter-spacing: 0.4px;
+}
+
+.logo {
+  font-size: 18px;
+}
+
+.tag {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #52606d;
+  border: 1px solid #d1dae3;
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+
+.nav a {
+  font-weight: 600;
+  padding-bottom: 4px;
+  border-bottom: 2px solid transparent;
+}
+
+.nav a.router-link-active {
+  border-color: #3b82f6;
+}
+
+.content {
+  flex: 1;
+  padding: 28px 24px 60px;
+}
+
+@media (max-width: 640px) {
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
 }
 </style>

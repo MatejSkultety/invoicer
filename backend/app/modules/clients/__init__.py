@@ -1,3 +1,3 @@
-from fastapi import APIRouter
+from .routes import init_module, router
 
-router = APIRouter(prefix="/clients", tags=["clients"])
+__all__ = ["init_module", "router"]
