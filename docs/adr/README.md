@@ -32,14 +32,14 @@ Use one of:
 - Accepted
 - Rejected
 - Deprecated
-- Superseded by ADR-XXXX
+- Superseded (include "Superseded by ADR-XXXX" in the Status line)
 
 ## Template (copy/paste)
 
 # ADR-0001: <Decision title>
 
 ## Status
-Proposed | Accepted | Rejected | Deprecated | Superseded by ADR-XXXX
+Proposed | Accepted | Rejected | Deprecated | Superseded (by ADR-XXXX)
 
 ## Context
 What problem are we solving? What constraints matter? What forces/tradeoffs exist?
