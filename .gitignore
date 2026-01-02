@@ -193,3 +193,18 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# Node (frontend build artifacts)
+dist/
+.vite/
+npm-debug.log*
+
+# Local data
+backend/.data/
+frontend/.data/
+*.db
+*.sqlite
+*.sqlite3
+
+# OS
+.DS_Store
