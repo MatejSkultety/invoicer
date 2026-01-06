@@ -150,6 +150,7 @@ Frontend is modular by domain:
 - Keep shared API client/utils/UI in `frontend/src/shared/`.
 - Frontend should not embed backend business rules (backend is source of truth).
 - Frontend features must be responsive for mobile browsers by default.
+- User-facing strings should live in module i18n files and be accessed via the shared i18n helper.
 
 Database:
 - SQLite now; keep DB configuration externalized (env-driven).

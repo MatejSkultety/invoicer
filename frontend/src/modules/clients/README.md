@@ -17,6 +17,9 @@ Form fields:
 - Required: name, address, city, country, main contact method, main contact.
 - Optional: additional contact, IČO, DIČ, notes.
 
+I18n:
+- Module strings live in `frontend/src/modules/clients/i18n/en.js`.
+
 Toast behavior:
 - Uses shared toast store and host in `frontend/src/shared/`.
 

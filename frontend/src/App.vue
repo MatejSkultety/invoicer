@@ -1,17 +1,18 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import ToastHost from './shared/ToastHost.vue'
+import { t } from './shared/i18n'
 </script>
 
 <template>
   <div class="app">
     <header class="topbar">
       <div class="brand">
-        <span class="logo">Invoicer</span>
-        <span class="tag">dev</span>
+        <span class="logo">{{ t('app.title') }}</span>
+        <span class="tag">{{ t('app.tag') }}</span>
       </div>
       <nav class="nav">
-        <RouterLink to="/clients">Clients</RouterLink>
+        <RouterLink to="/clients">{{ t('app.nav.clients') }}</RouterLink>
       </nav>
     </header>
     <main class="content">

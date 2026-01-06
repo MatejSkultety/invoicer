@@ -1,5 +1,6 @@
 <script setup>
 import { useToast } from './toast'
+import { t } from './i18n'
 
 const { state, removeToast } = useToast()
 </script>
@@ -13,7 +14,7 @@ const { state, removeToast } = useToast()
       :class="toast.variant"
     >
       <span>{{ toast.message }}</span>
-      <button type="button" @click="removeToast(toast.id)">Close</button>
+      <button type="button" @click="removeToast(toast.id)">{{ t('common.close') }}</button>
     </div>
   </div>
 </template>

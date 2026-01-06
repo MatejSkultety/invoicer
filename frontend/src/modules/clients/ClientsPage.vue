@@ -3,6 +3,7 @@ import { computed, onMounted, ref, shallowRef } from 'vue'
 import ClientModal from './ClientModal.vue'
 import { archiveClient, createClient, listClients, updateClient } from './api'
 import { useToast } from '../../shared/toast'
+import { t } from '../../shared/i18n'
 
 // Shallow ref keeps derived card formatting from recomputing on deep mutations.
 const clients = shallowRef([])
@@ -15,11 +16,11 @@ const formError = ref('')
 
 const { addToast } = useToast()
 
-const contactMeta = {
-  email: { label: 'Email', emoji: '📧' },
-  whatsapp: { label: 'WhatsApp', emoji: '💬' },
-  discord: { label: 'Discord', emoji: '🎮' }
-}
+const contactMeta = computed(() => ({
+  email: { label: t('clients.contactMethods.email'), emoji: '📧' },
+  whatsapp: { label: t('clients.contactMethods.whatsapp'), emoji: '💬' },
+  discord: { label: t('clients.contactMethods.discord'), emoji: '🎮' }
+}))
 
 async function loadClients() {
   loading.value = true
@@ -27,7 +28,7 @@ async function loadClients() {
   try {
     clients.value = await listClients()
   } catch (error) {
-    errorMessage.value = error.message || 'Unable to load clients.'
+    errorMessage.value = error.message || t('clients.errors.load')
   } finally {
     loading.value = false
   }
@@ -52,15 +53,15 @@ async function handleSubmit(payload) {
   try {
     if (activeClient.value) {
       await updateClient(activeClient.value.id, payload)
-      addToast('Client updated')
+      addToast(t('clients.toasts.updated'))
     } else {
       await createClient(payload)
-      addToast('Client created')
+      addToast(t('clients.toasts.created'))
     }
     modalOpen.value = false
     await loadClients()
   } catch (error) {
-    formError.value = error.message || 'Unable to save client.'
+    formError.value = error.message || t('clients.errors.save')
   } finally {
     submitting.value = false
   }
@@ -70,15 +71,15 @@ async function handleArchive(client) {
   errorMessage.value = ''
   try {
     await archiveClient(client.id)
-    addToast('Client archived')
+    addToast(t('clients.toasts.archived'))
     await loadClients()
   } catch (error) {
-    errorMessage.value = error.message || 'Unable to archive client.'
+    errorMessage.value = error.message || t('clients.errors.archive')
   }
 }
 
 function primaryContact(client) {
-  const meta = contactMeta[client.main_contact_method] || {
+  const meta = contactMeta.value[client.main_contact_method] || {
     label: client.main_contact_method,
     emoji: '💬'
   }
@@ -102,10 +103,12 @@ const clientCards = computed(() =>
   <section class="page">
     <header class="header">
       <div>
-        <p class="eyebrow">Clients</p>
-        <h1>Manage your clients</h1>
+        <p class="eyebrow">{{ t('clients.page.eyebrow') }}</p>
+        <h1>{{ t('clients.page.title') }}</h1>
       </div>
-      <button class="primary" type="button" @click="openCreate">Create client</button>
+      <button class="primary" type="button" @click="openCreate">
+        {{ t('clients.page.actions.create') }}
+      </button>
     </header>
 
     <ClientModal
@@ -116,23 +119,31 @@ const clientCards = computed(() =>
       @submit="handleSubmit"
     />
 
-    <div v-if="loading" class="state">Loading clients...</div>
+    <div v-if="loading" class="state">{{ t('clients.page.loading') }}</div>
     <div v-else-if="errorMessage" class="state error">
       <p>{{ errorMessage }}</p>
-      <button type="button" class="ghost" @click="loadClients">Retry</button>
+      <button type="button" class="ghost" @click="loadClients">
+        {{ t('common.retry') }}
+      </button>
     </div>
-    <div v-else-if="clients.length === 0" class="state">No clients yet.</div>
+    <div v-else-if="clients.length === 0" class="state">{{ t('clients.page.empty') }}</div>
 
     <div v-else class="grid">
       <article v-for="client in clientCards" :key="client.id" class="card">
         <div class="card-header">
           <div class="title">
             <h2>{{ client.name }}</h2>
-            <span v-if="client.favourite" class="badge">⭐ Favourite</span>
+            <span v-if="client.favourite" class="badge">
+              ⭐ {{ t('clients.page.badges.favourite') }}
+            </span>
           </div>
           <div class="actions">
-            <button type="button" class="ghost" @click="openEdit(client)">Edit</button>
-            <button type="button" class="danger" @click="handleArchive(client)">Archive</button>
+            <button type="button" class="ghost" @click="openEdit(client)">
+              {{ t('clients.page.actions.edit') }}
+            </button>
+            <button type="button" class="danger" @click="handleArchive(client)">
+              {{ t('clients.page.actions.archive') }}
+            </button>
           </div>
         </div>
         <p class="meta contact">{{ client.contactLine }}</p>

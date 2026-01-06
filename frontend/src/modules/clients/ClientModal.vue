@@ -1,5 +1,6 @@
 <script setup>
 import { computed, reactive, watch } from 'vue'
+import { t } from '../../shared/i18n'
 
 const props = defineProps({
   modelValue: {
@@ -46,6 +47,9 @@ const errors = reactive({
 })
 
 const isEdit = computed(() => Boolean(props.client))
+const modalTitle = computed(() =>
+  isEdit.value ? t('clients.modal.titleEdit') : t('clients.modal.titleCreate')
+)
 
 function resetForm() {
   const source = props.client
@@ -95,32 +99,32 @@ function validate() {
   let valid = true
 
   if (!form.name.trim()) {
-    errors.name = 'Name is required'
+    errors.name = t('clients.validation.nameRequired')
     valid = false
   }
 
   if (!form.address.trim()) {
-    errors.address = 'Address is required'
+    errors.address = t('clients.validation.addressRequired')
     valid = false
   }
 
   if (!form.city.trim()) {
-    errors.city = 'City is required'
+    errors.city = t('clients.validation.cityRequired')
     valid = false
   }
 
   if (!form.country.trim()) {
-    errors.country = 'Country is required'
+    errors.country = t('clients.validation.countryRequired')
     valid = false
   }
 
   if (!form.main_contact_method) {
-    errors.main_contact_method = 'Contact method is required'
+    errors.main_contact_method = t('clients.validation.contactMethodRequired')
     valid = false
   }
 
   if (!form.main_contact.trim()) {
-    errors.main_contact = 'Main contact is required'
+    errors.main_contact = t('clients.validation.mainContactRequired')
     valid = false
   }
 
@@ -157,13 +161,14 @@ function submit() {
     <div class="modal">
       <header>
         <div class="title">
-          <h2>{{ isEdit ? 'Edit client' : 'Create client' }}</h2>
+          <h2>{{ modalTitle }}</h2>
           <button
             type="button"
             class="favourite-toggle"
             :class="{ active: form.favourite }"
             :aria-pressed="form.favourite"
-            title="Toggle favourite client"
+            :aria-label="t('clients.hints.favourite')"
+            :title="t('clients.hints.favourite')"
             @click="form.favourite = !form.favourite"
           >
             {{ form.favourite ? '★' : '☆' }}
@@ -171,15 +176,15 @@ function submit() {
         </div>
         <div class="header-actions">
           <button type="submit" form="client-form" :disabled="submitting">
-            {{ submitting ? 'Saving...' : isEdit ? 'Save' : 'Create' }}
+            {{ submitting ? t('common.saving') : isEdit ? t('common.save') : t('common.create') }}
           </button>
-          <button type="button" class="close" aria-label="Cancel" @click="close">✕</button>
+          <button type="button" class="close" :aria-label="t('common.cancel')" @click="close">✕</button>
         </div>
       </header>
 
       <form id="client-form" class="form" @submit.prevent="submit">
         <label class="field">
-          <span class="field-label">Name</span>
+          <span class="field-label">{{ t('clients.fields.name') }}</span>
           <div class="field-control">
             <input v-model="form.name" name="name" type="text" autocomplete="name" />
             <span v-if="errors.name" class="error">{{ errors.name }}</span>
@@ -187,7 +192,7 @@ function submit() {
         </label>
 
         <label class="field">
-          <span class="field-label">Address</span>
+          <span class="field-label">{{ t('clients.fields.address') }}</span>
           <div class="field-control">
             <input v-model="form.address" name="address" type="text" autocomplete="street-address" />
             <span v-if="errors.address" class="error">{{ errors.address }}</span>
@@ -195,7 +200,7 @@ function submit() {
         </label>
 
         <label class="field">
-          <span class="field-label">City</span>
+          <span class="field-label">{{ t('clients.fields.city') }}</span>
           <div class="field-control">
             <input v-model="form.city" name="city" type="text" autocomplete="address-level2" />
             <span v-if="errors.city" class="error">{{ errors.city }}</span>
@@ -203,7 +208,7 @@ function submit() {
         </label>
 
         <label class="field">
-          <span class="field-label">Country</span>
+          <span class="field-label">{{ t('clients.fields.country') }}</span>
           <div class="field-control">
             <input v-model="form.country" name="country" type="text" autocomplete="country-name" />
             <span v-if="errors.country" class="error">{{ errors.country }}</span>
@@ -211,23 +216,23 @@ function submit() {
         </label>
 
         <label class="field">
-          <span class="field-label">Main contact method</span>
+          <span class="field-label">{{ t('clients.fields.mainContactMethod') }}</span>
           <div class="field-control inline">
             <select
               v-model="form.main_contact_method"
               name="main_contact_method"
               class="select-inline"
             >
-              <option value="email">📧 Email</option>
-              <option value="whatsapp">💬 WhatsApp</option>
-              <option value="discord">🎮 Discord</option>
+              <option value="email">📧 {{ t('clients.contactMethods.email') }}</option>
+              <option value="whatsapp">💬 {{ t('clients.contactMethods.whatsapp') }}</option>
+              <option value="discord">🎮 {{ t('clients.contactMethods.discord') }}</option>
             </select>
             <span v-if="errors.main_contact_method" class="error">{{ errors.main_contact_method }}</span>
           </div>
         </label>
 
         <label class="field">
-          <span class="field-label">Main contact</span>
+          <span class="field-label">{{ t('clients.fields.mainContact') }}</span>
           <div class="field-control">
             <input v-model="form.main_contact" name="main_contact" type="text" />
             <span v-if="errors.main_contact" class="error">{{ errors.main_contact }}</span>
@@ -235,31 +240,31 @@ function submit() {
         </label>
 
         <div class="optional">
-          <p class="optional-title">Optional</p>
+          <p class="optional-title">{{ t('clients.modal.optional') }}</p>
 
           <label class="field">
-            <span class="field-label">Additional contact</span>
+            <span class="field-label">{{ t('clients.fields.additionalContact') }}</span>
             <div class="field-control">
               <input v-model="form.additional_contact" name="additional_contact" type="text" />
             </div>
           </label>
 
           <label class="field">
-            <span class="field-label">IČO</span>
+            <span class="field-label">{{ t('clients.fields.ico') }}</span>
             <div class="field-control">
               <input v-model="form.ico" name="ico" type="text" />
             </div>
           </label>
 
           <label class="field">
-            <span class="field-label">DIČ</span>
+            <span class="field-label">{{ t('clients.fields.dic') }}</span>
             <div class="field-control">
               <input v-model="form.dic" name="dic" type="text" />
             </div>
           </label>
 
           <label class="field">
-            <span class="field-label">Notes</span>
+            <span class="field-label">{{ t('clients.fields.notes') }}</span>
             <div class="field-control">
               <textarea v-model="form.notes" name="notes" rows="4"></textarea>
             </div>
