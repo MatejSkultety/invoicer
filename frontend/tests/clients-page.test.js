@@ -72,7 +72,10 @@ test('create flow calls the API and shows a toast', async () => {
     id: 'a5f6c8d1-5678-4b21-8b33-abcdef123456',
     ...payload
   }])
-  createClient.mockResolvedValue({ id: 2, ...payload })
+  createClient.mockResolvedValue({
+    id: 'a5f6c8d1-5678-4b21-8b33-abcdef123456',
+    ...payload
+  })
 
   const wrapper = mount(ClientsPage)
   await flushPromises()

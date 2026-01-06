@@ -23,6 +23,10 @@ function resolveMessage(messageTree, key) {
 export function t(key, params = {}) {
   const message = resolveMessage(messages[locale.value], key)
   if (typeof message !== 'string') {
+    if (import.meta?.env?.DEV) {
+      // eslint-disable-next-line no-console
+      console.warn(`[i18n] Missing translation for key: ${key}`)
+    }
     return key
   }
 

@@ -61,3 +61,6 @@ This is a monorepo with two containers/services (backend + frontend). Module nam
 
 ## Frontend responsiveness
 All frontend features should be built to work well on mobile browsers (sensible defaults for small screens).
+
+## Environment
+- `APP_ENV`: set to `dev` or `prod` to control backend logging format/level (default: `dev`).

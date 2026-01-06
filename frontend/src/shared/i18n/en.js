@@ -12,6 +12,7 @@ export default {
     saving: 'Saving...',
     retry: 'Retry',
     close: 'Close',
-    cancel: 'Cancel'
+    cancel: 'Cancel',
+    unexpectedError: 'Something went wrong. Please try again.'
   }
 }

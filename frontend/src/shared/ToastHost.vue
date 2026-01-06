@@ -45,6 +45,10 @@ const { state, removeToast } = useToast()
   background: #1b4332;
 }
 
+.toast.error {
+  background: #991b1b;
+}
+
 .toast button {
   border: none;
   background: transparent;

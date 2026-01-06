@@ -1,5 +1,5 @@
 <script setup>
-import { computed, reactive, watch } from 'vue'
+import { computed, onBeforeUnmount, reactive, watch } from 'vue'
 import { t } from '../../shared/i18n'
 
 const props = defineProps({
@@ -81,6 +81,9 @@ watch(
   (open) => {
     if (open) {
       resetForm()
+      window.addEventListener('keydown', onKeydown)
+    } else {
+      window.removeEventListener('keydown', onKeydown)
     }
   }
 )
@@ -93,6 +96,16 @@ watch(
     }
   }
 )
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKeydown)
+})
+
+function onKeydown(event) {
+  if (event.key === 'Escape') {
+    close()
+  }
+}
 
 function validate() {
   clearErrors()
