@@ -32,9 +32,16 @@ test('renders clients from the API', async () => {
     {
       id: 1,
       name: 'Acme Co',
-      email: 'hello@acme.test',
       address: '123 Main St',
-      notes: 'Priority account'
+      city: 'Prague',
+      country: 'Czechia',
+      main_contact_method: 'email',
+      main_contact: 'hello@acme.test',
+      additional_contact: null,
+      ico: null,
+      dic: null,
+      notes: 'Priority account',
+      favourite: false
     }
   ])
 
@@ -49,8 +56,15 @@ test('create flow calls the API and shows a toast', async () => {
   const payload = {
     name: 'Nova Labs',
     address: '88 Market St',
-    email: 'team@nova.test',
-    notes: 'Pilot customer'
+    city: 'Brno',
+    country: 'Czechia',
+    main_contact_method: 'discord',
+    main_contact: 'nova-team',
+    additional_contact: '',
+    ico: '',
+    dic: '',
+    notes: 'Pilot customer',
+    favourite: false
   }
 
   listClients.mockResolvedValueOnce([]).mockResolvedValueOnce([{

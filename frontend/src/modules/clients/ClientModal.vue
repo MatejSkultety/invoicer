@@ -25,35 +25,51 @@ const emit = defineEmits(['update:modelValue', 'submit'])
 const form = reactive({
   name: '',
   address: '',
-  email: '',
-  notes: ''
+  city: '',
+  country: '',
+  main_contact_method: 'email',
+  main_contact: '',
+  additional_contact: '',
+  ico: '',
+  dic: '',
+  notes: '',
+  favourite: false
 })
 
 const errors = reactive({
   name: '',
   address: '',
-  email: '',
-  notes: ''
+  city: '',
+  country: '',
+  main_contact_method: '',
+  main_contact: ''
 })
 
 const isEdit = computed(() => Boolean(props.client))
-
-const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
 
 function resetForm() {
   const source = props.client
   form.name = source ? source.name : ''
   form.address = source ? source.address : ''
-  form.email = source ? source.email : ''
-  form.notes = source ? source.notes : ''
+  form.city = source ? source.city : ''
+  form.country = source ? source.country : ''
+  form.main_contact_method = source ? source.main_contact_method : 'email'
+  form.main_contact = source ? source.main_contact : ''
+  form.additional_contact = source ? source.additional_contact || '' : ''
+  form.ico = source ? source.ico || '' : ''
+  form.dic = source ? source.dic || '' : ''
+  form.notes = source ? source.notes || '' : ''
+  form.favourite = source ? Boolean(source.favourite) : false
   clearErrors()
 }
 
 function clearErrors() {
   errors.name = ''
   errors.address = ''
-  errors.email = ''
-  errors.notes = ''
+  errors.city = ''
+  errors.country = ''
+  errors.main_contact_method = ''
+  errors.main_contact = ''
 }
 
 watch(
@@ -88,16 +104,23 @@ function validate() {
     valid = false
   }
 
-  if (!form.email.trim()) {
-    errors.email = 'Email is required'
-    valid = false
-  } else if (!emailPattern.test(form.email.trim())) {
-    errors.email = 'Enter a valid email'
+  if (!form.city.trim()) {
+    errors.city = 'City is required'
     valid = false
   }
 
-  if (!form.notes.trim()) {
-    errors.notes = 'Notes are required'
+  if (!form.country.trim()) {
+    errors.country = 'Country is required'
+    valid = false
+  }
+
+  if (!form.main_contact_method) {
+    errors.main_contact_method = 'Contact method is required'
+    valid = false
+  }
+
+  if (!form.main_contact.trim()) {
+    errors.main_contact = 'Main contact is required'
     valid = false
   }
 
@@ -116,8 +139,15 @@ function submit() {
   emit('submit', {
     name: form.name.trim(),
     address: form.address.trim(),
-    email: form.email.trim(),
-    notes: form.notes.trim()
+    city: form.city.trim(),
+    country: form.country.trim(),
+    main_contact_method: form.main_contact_method,
+    main_contact: form.main_contact.trim(),
+    additional_contact: form.additional_contact.trim(),
+    ico: form.ico.trim(),
+    dic: form.dic.trim(),
+    notes: form.notes.trim(),
+    favourite: form.favourite
   })
 }
 </script>
@@ -133,26 +163,67 @@ function submit() {
       <form class="form" @submit.prevent="submit">
         <label>
           <span>Name</span>
-          <input v-model="form.name" type="text" autocomplete="name" />
+          <input v-model="form.name" name="name" type="text" autocomplete="name" />
           <span v-if="errors.name" class="error">{{ errors.name }}</span>
         </label>
 
         <label>
           <span>Address</span>
-          <input v-model="form.address" type="text" autocomplete="street-address" />
+          <input v-model="form.address" name="address" type="text" autocomplete="street-address" />
           <span v-if="errors.address" class="error">{{ errors.address }}</span>
         </label>
 
         <label>
-          <span>Email</span>
-          <input v-model="form.email" type="email" autocomplete="email" />
-          <span v-if="errors.email" class="error">{{ errors.email }}</span>
+          <span>City</span>
+          <input v-model="form.city" name="city" type="text" autocomplete="address-level2" />
+          <span v-if="errors.city" class="error">{{ errors.city }}</span>
+        </label>
+
+        <label>
+          <span>Country</span>
+          <input v-model="form.country" name="country" type="text" autocomplete="country-name" />
+          <span v-if="errors.country" class="error">{{ errors.country }}</span>
+        </label>
+
+        <label>
+          <span>Main contact method</span>
+          <select v-model="form.main_contact_method" name="main_contact_method">
+            <option value="email">Email</option>
+            <option value="whatsapp">WhatsApp</option>
+            <option value="discord">Discord</option>
+          </select>
+          <span v-if="errors.main_contact_method" class="error">{{ errors.main_contact_method }}</span>
+        </label>
+
+        <label>
+          <span>Main contact</span>
+          <input v-model="form.main_contact" name="main_contact" type="text" />
+          <span v-if="errors.main_contact" class="error">{{ errors.main_contact }}</span>
+        </label>
+
+        <label>
+          <span>Additional contact</span>
+          <input v-model="form.additional_contact" name="additional_contact" type="text" />
+        </label>
+
+        <label>
+          <span>IČO</span>
+          <input v-model="form.ico" name="ico" type="text" />
+        </label>
+
+        <label>
+          <span>DIČ</span>
+          <input v-model="form.dic" name="dic" type="text" />
         </label>
 
         <label>
           <span>Notes</span>
-          <textarea v-model="form.notes" rows="4"></textarea>
-          <span v-if="errors.notes" class="error">{{ errors.notes }}</span>
+          <textarea v-model="form.notes" name="notes" rows="4"></textarea>
+        </label>
+
+        <label class="checkbox">
+          <input v-model="form.favourite" name="favourite" type="checkbox" />
+          <span>Favourite client</span>
         </label>
 
         <p v-if="errorMessage" class="error-banner">{{ errorMessage }}</p>
@@ -221,11 +292,16 @@ label {
 }
 
 input,
-textarea {
+textarea,
+select {
   border: 1px solid #d2dae3;
   border-radius: 10px;
   padding: 10px 12px;
   font: inherit;
+}
+
+select {
+  background: #ffffff;
 }
 
 .error {
@@ -247,6 +323,12 @@ textarea {
   justify-content: flex-end;
   gap: 10px;
   margin-top: 8px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 button {

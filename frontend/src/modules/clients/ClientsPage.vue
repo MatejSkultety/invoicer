@@ -14,6 +14,12 @@ const formError = ref('')
 
 const { addToast } = useToast()
 
+const contactLabels = {
+  email: 'Email',
+  whatsapp: 'WhatsApp',
+  discord: 'Discord'
+}
+
 async function loadClients() {
   loading.value = true
   errorMessage.value = ''
@@ -71,11 +77,19 @@ async function handleArchive(client) {
 }
 
 function notesPreview(notes) {
+  if (!notes) {
+    return ''
+  }
   const trimmed = notes.trim()
   if (trimmed.length <= 120) {
     return trimmed
   }
   return `${trimmed.slice(0, 120)}...`
+}
+
+function primaryContact(client) {
+  const label = contactLabels[client.main_contact_method] || client.main_contact_method
+  return `${label}: ${client.main_contact}`
 }
 
 onMounted(() => {
@@ -117,9 +131,11 @@ onMounted(() => {
             <button type="button" class="danger" @click="handleArchive(client)">Archive</button>
           </div>
         </div>
-        <p class="meta">{{ client.email }}</p>
+        <p class="meta">{{ primaryContact(client) }}</p>
         <p class="meta">{{ client.address }}</p>
-        <p class="notes">{{ notesPreview(client.notes) }}</p>
+        <p class="meta">{{ client.city }}, {{ client.country }}</p>
+        <p v-if="notesPreview(client.notes)" class="notes">{{ notesPreview(client.notes) }}</p>
+        <p v-else class="notes muted">No notes</p>
       </article>
     </div>
   </section>
@@ -220,6 +236,10 @@ h2 {
   margin: 0;
   font-size: 14px;
   color: #1f2933;
+}
+
+.notes.muted {
+  color: #94a3b8;
 }
 
 .actions {

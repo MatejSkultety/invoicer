@@ -22,8 +22,15 @@ def sample_payload():
     return {
         "name": "Acme Co",
         "address": "123 Main St",
-        "email": "hello@acme.test",
+        "city": "Prague",
+        "country": "Czechia",
+        "main_contact_method": "email",
+        "main_contact": "hello@acme.test",
+        "additional_contact": "secondary@acme.test",
+        "ico": "12345678",
+        "dic": "CZ12345678",
         "notes": "Priority account",
+        "favourite": True,
     }
 
 
@@ -37,7 +44,8 @@ def test_create_list_get_update_delete(client, sample_payload):
     assert list_response.status_code == 200
     listed = list_response.json()
     assert len(listed) == 1
-    assert listed[0]["email"] == sample_payload["email"]
+    assert listed[0]["main_contact"] == sample_payload["main_contact"]
+    assert listed[0]["favourite"] is True
 
     get_response = client.get(f"/api/clients/{client_id}")
     assert get_response.status_code == 200
@@ -45,12 +53,20 @@ def test_create_list_get_update_delete(client, sample_payload):
     updated_payload = {
         "name": "Acme Updated",
         "address": "456 Market St",
-        "email": "updated@acme.test",
-        "notes": "Updated notes",
+        "city": "Brno",
+        "country": "Czechia",
+        "main_contact_method": "whatsapp",
+        "main_contact": "+420123456789",
+        "additional_contact": None,
+        "ico": "87654321",
+        "dic": "CZ87654321",
+        "notes": None,
+        "favourite": False,
     }
     update_response = client.put(f"/api/clients/{client_id}", json=updated_payload)
     assert update_response.status_code == 200
-    assert update_response.json()["email"] == "updated@acme.test"
+    assert update_response.json()["main_contact_method"] == "whatsapp"
+    assert update_response.json()["favourite"] is False
 
     delete_response = client.delete(f"/api/clients/{client_id}")
     assert delete_response.status_code == 204
@@ -66,17 +82,9 @@ def test_create_list_get_update_delete(client, sample_payload):
     assert recreate_response.status_code == 201
 
 
-def test_unique_email_conflict(client, sample_payload):
-    first = client.post("/api/clients", json=sample_payload)
-    assert first.status_code == 201
-
-    duplicate = client.post("/api/clients", json=sample_payload)
-    assert duplicate.status_code == 409
-
-
-def test_invalid_email_returns_validation_error(client, sample_payload):
+def test_invalid_contact_method_returns_validation_error(client, sample_payload):
     bad_payload = dict(sample_payload)
-    bad_payload["email"] = "not-an-email"
+    bad_payload["main_contact_method"] = "sms"
 
     response = client.post("/api/clients", json=bad_payload)
     assert response.status_code == 422
