@@ -1,10 +1,11 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref, shallowRef } from 'vue'
 import ClientModal from './ClientModal.vue'
 import { archiveClient, createClient, listClients, updateClient } from './api'
 import { useToast } from '../../shared/toast'
 
-const clients = ref([])
+// Shallow ref keeps derived card formatting from recomputing on deep mutations.
+const clients = shallowRef([])
 const loading = ref(false)
 const errorMessage = ref('')
 const modalOpen = ref(false)
@@ -14,10 +15,10 @@ const formError = ref('')
 
 const { addToast } = useToast()
 
-const contactLabels = {
-  email: 'Email',
-  whatsapp: 'WhatsApp',
-  discord: 'Discord'
+const contactMeta = {
+  email: { label: 'Email', emoji: '📧' },
+  whatsapp: { label: 'WhatsApp', emoji: '💬' },
+  discord: { label: 'Discord', emoji: '🎮' }
 }
 
 async function loadClients() {
@@ -76,25 +77,25 @@ async function handleArchive(client) {
   }
 }
 
-function notesPreview(notes) {
-  if (!notes) {
-    return ''
-  }
-  const trimmed = notes.trim()
-  if (trimmed.length <= 120) {
-    return trimmed
-  }
-  return `${trimmed.slice(0, 120)}...`
-}
-
 function primaryContact(client) {
-  const label = contactLabels[client.main_contact_method] || client.main_contact_method
-  return `${label}: ${client.main_contact}`
+  const meta = contactMeta[client.main_contact_method] || {
+    label: client.main_contact_method,
+    emoji: '💬'
+  }
+  return `${meta.emoji} ${meta.label}: ${client.main_contact}`
 }
 
 onMounted(() => {
   loadClients()
 })
+
+const clientCards = computed(() =>
+  clients.value.map((client) => ({
+    ...client,
+    contactLine: primaryContact(client),
+    notesText: client.notes ? client.notes.trim() : ''
+  }))
+)
 </script>
 
 <template>
@@ -123,19 +124,25 @@ onMounted(() => {
     <div v-else-if="clients.length === 0" class="state">No clients yet.</div>
 
     <div v-else class="grid">
-      <article v-for="client in clients" :key="client.id" class="card">
+      <article v-for="client in clientCards" :key="client.id" class="card">
         <div class="card-header">
-          <h2>{{ client.name }}</h2>
+          <div class="title">
+            <h2>{{ client.name }}</h2>
+            <span v-if="client.favourite" class="badge">⭐ Favourite</span>
+          </div>
           <div class="actions">
             <button type="button" class="ghost" @click="openEdit(client)">Edit</button>
             <button type="button" class="danger" @click="handleArchive(client)">Archive</button>
           </div>
         </div>
-        <p class="meta">{{ primaryContact(client) }}</p>
-        <p class="meta">{{ client.address }}</p>
-        <p class="meta">{{ client.city }}, {{ client.country }}</p>
-        <p v-if="notesPreview(client.notes)" class="notes">{{ notesPreview(client.notes) }}</p>
-        <p v-else class="notes muted">No notes</p>
+        <p class="meta contact">{{ client.contactLine }}</p>
+        <p
+          class="notes"
+          :class="{ hidden: !client.notesText }"
+          :aria-hidden="!client.notesText"
+        >
+          {{ client.notesText }}
+        </p>
       </article>
     </div>
   </section>
@@ -221,6 +228,13 @@ h1 {
   gap: 12px;
 }
 
+.title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 h2 {
   margin: 0;
   font-size: 18px;
@@ -232,14 +246,25 @@ h2 {
   font-size: 14px;
 }
 
+.meta.contact {
+  color: #1f2933;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .notes {
   margin: 0;
   font-size: 14px;
   color: #1f2933;
+  min-height: 1.2em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.notes.muted {
-  color: #94a3b8;
+.notes.hidden {
+  visibility: hidden;
 }
 
 .actions {
@@ -264,5 +289,43 @@ button.danger {
   padding: 6px 12px;
   cursor: pointer;
   font-size: 12px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .primary {
+    width: 100%;
+    text-align: center;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  button.ghost,
+  button.danger {
+    flex: 1;
+  }
 }
 </style>

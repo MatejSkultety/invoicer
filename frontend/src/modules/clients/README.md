@@ -3,12 +3,15 @@
 Route: `/clients`
 
 UI behavior:
-- Lists clients with name, primary contact, address, city/country, and notes preview.
+- Lists clients with name, primary contact (with emoji), single-line notes preview (ellipsis), and a star badge for favourites.
+- Client cards are derived on list refresh to avoid recomputing preview/contact strings on unrelated updates.
 - Create client modal with validation feedback for required fields and favourite toggle.
+- Notes textarea is fixed-size to keep the modal layout stable.
 - Edit action reuses the modal with prefilled data.
 - Archive action soft-deletes the client via the API.
 - Success toasts on create/update/archive.
 - Inline error message on API failures.
+- Designed to remain usable on mobile browsers (stacked layout, touch-friendly controls).
 
 Form fields:
 - Required: name, address, city, country, main contact method, main contact.

@@ -156,84 +156,118 @@ function submit() {
   <div v-if="modelValue" class="overlay" role="dialog" aria-modal="true">
     <div class="modal">
       <header>
-        <h2>{{ isEdit ? 'Edit client' : 'Create client' }}</h2>
-        <button type="button" class="close" @click="close">Close</button>
+        <div class="title">
+          <h2>{{ isEdit ? 'Edit client' : 'Create client' }}</h2>
+          <button
+            type="button"
+            class="favourite-toggle"
+            :class="{ active: form.favourite }"
+            :aria-pressed="form.favourite"
+            title="Toggle favourite client"
+            @click="form.favourite = !form.favourite"
+          >
+            {{ form.favourite ? '★' : '☆' }}
+          </button>
+        </div>
+        <div class="header-actions">
+          <button type="submit" form="client-form" :disabled="submitting">
+            {{ submitting ? 'Saving...' : isEdit ? 'Save' : 'Create' }}
+          </button>
+          <button type="button" class="close" aria-label="Cancel" @click="close">✕</button>
+        </div>
       </header>
 
-      <form class="form" @submit.prevent="submit">
-        <label>
-          <span>Name</span>
-          <input v-model="form.name" name="name" type="text" autocomplete="name" />
-          <span v-if="errors.name" class="error">{{ errors.name }}</span>
+      <form id="client-form" class="form" @submit.prevent="submit">
+        <label class="field">
+          <span class="field-label">Name</span>
+          <div class="field-control">
+            <input v-model="form.name" name="name" type="text" autocomplete="name" />
+            <span v-if="errors.name" class="error">{{ errors.name }}</span>
+          </div>
         </label>
 
-        <label>
-          <span>Address</span>
-          <input v-model="form.address" name="address" type="text" autocomplete="street-address" />
-          <span v-if="errors.address" class="error">{{ errors.address }}</span>
+        <label class="field">
+          <span class="field-label">Address</span>
+          <div class="field-control">
+            <input v-model="form.address" name="address" type="text" autocomplete="street-address" />
+            <span v-if="errors.address" class="error">{{ errors.address }}</span>
+          </div>
         </label>
 
-        <label>
-          <span>City</span>
-          <input v-model="form.city" name="city" type="text" autocomplete="address-level2" />
-          <span v-if="errors.city" class="error">{{ errors.city }}</span>
+        <label class="field">
+          <span class="field-label">City</span>
+          <div class="field-control">
+            <input v-model="form.city" name="city" type="text" autocomplete="address-level2" />
+            <span v-if="errors.city" class="error">{{ errors.city }}</span>
+          </div>
         </label>
 
-        <label>
-          <span>Country</span>
-          <input v-model="form.country" name="country" type="text" autocomplete="country-name" />
-          <span v-if="errors.country" class="error">{{ errors.country }}</span>
+        <label class="field">
+          <span class="field-label">Country</span>
+          <div class="field-control">
+            <input v-model="form.country" name="country" type="text" autocomplete="country-name" />
+            <span v-if="errors.country" class="error">{{ errors.country }}</span>
+          </div>
         </label>
 
-        <label>
-          <span>Main contact method</span>
-          <select v-model="form.main_contact_method" name="main_contact_method">
-            <option value="email">Email</option>
-            <option value="whatsapp">WhatsApp</option>
-            <option value="discord">Discord</option>
-          </select>
-          <span v-if="errors.main_contact_method" class="error">{{ errors.main_contact_method }}</span>
+        <label class="field">
+          <span class="field-label">Main contact method</span>
+          <div class="field-control inline">
+            <select
+              v-model="form.main_contact_method"
+              name="main_contact_method"
+              class="select-inline"
+            >
+              <option value="email">📧 Email</option>
+              <option value="whatsapp">💬 WhatsApp</option>
+              <option value="discord">🎮 Discord</option>
+            </select>
+            <span v-if="errors.main_contact_method" class="error">{{ errors.main_contact_method }}</span>
+          </div>
         </label>
 
-        <label>
-          <span>Main contact</span>
-          <input v-model="form.main_contact" name="main_contact" type="text" />
-          <span v-if="errors.main_contact" class="error">{{ errors.main_contact }}</span>
+        <label class="field">
+          <span class="field-label">Main contact</span>
+          <div class="field-control">
+            <input v-model="form.main_contact" name="main_contact" type="text" />
+            <span v-if="errors.main_contact" class="error">{{ errors.main_contact }}</span>
+          </div>
         </label>
 
-        <label>
-          <span>Additional contact</span>
-          <input v-model="form.additional_contact" name="additional_contact" type="text" />
-        </label>
+        <div class="optional">
+          <p class="optional-title">Optional</p>
 
-        <label>
-          <span>IČO</span>
-          <input v-model="form.ico" name="ico" type="text" />
-        </label>
+          <label class="field">
+            <span class="field-label">Additional contact</span>
+            <div class="field-control">
+              <input v-model="form.additional_contact" name="additional_contact" type="text" />
+            </div>
+          </label>
 
-        <label>
-          <span>DIČ</span>
-          <input v-model="form.dic" name="dic" type="text" />
-        </label>
+          <label class="field">
+            <span class="field-label">IČO</span>
+            <div class="field-control">
+              <input v-model="form.ico" name="ico" type="text" />
+            </div>
+          </label>
 
-        <label>
-          <span>Notes</span>
-          <textarea v-model="form.notes" name="notes" rows="4"></textarea>
-        </label>
+          <label class="field">
+            <span class="field-label">DIČ</span>
+            <div class="field-control">
+              <input v-model="form.dic" name="dic" type="text" />
+            </div>
+          </label>
 
-        <label class="checkbox">
-          <input v-model="form.favourite" name="favourite" type="checkbox" />
-          <span>Favourite client</span>
-        </label>
+          <label class="field">
+            <span class="field-label">Notes</span>
+            <div class="field-control">
+              <textarea v-model="form.notes" name="notes" rows="4"></textarea>
+            </div>
+          </label>
+        </div>
 
         <p v-if="errorMessage" class="error-banner">{{ errorMessage }}</p>
 
-        <div class="actions">
-          <button type="button" class="ghost" @click="close">Cancel</button>
-          <button type="submit" :disabled="submitting">
-            {{ submitting ? 'Saving...' : isEdit ? 'Save changes' : 'Create client' }}
-          </button>
-        </div>
       </form>
     </div>
   </div>
@@ -252,11 +286,17 @@ function submit() {
 }
 
 .modal {
-  width: min(520px, 100%);
+  width: min(720px, 100%);
+  max-width: 100%;
+  max-height: 90vh;
   background: #ffffff;
   border-radius: 16px;
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
   padding: 22px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
+  overflow-x: hidden;
 }
 
 header {
@@ -266,29 +306,77 @@ header {
   margin-bottom: 16px;
 }
 
+.title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 h2 {
   margin: 0;
   font-size: 20px;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .close {
   border: none;
-  background: transparent;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  background: #e2e8f0;
+  color: #1f2933;
+  font-size: 16px;
   cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 999px;
 }
 
 .form {
   display: grid;
-  gap: 14px;
+  gap: 12px;
+  overflow-y: auto;
+  padding-right: 4px;
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
 }
 
-label {
-  display: grid;
-  gap: 6px;
+.field {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
   font-size: 14px;
+}
+
+.field-label {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 12px;
+  color: #6b7280;
+  width: 120px;
+}
+
+.field-control {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.field-control.inline {
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 input,
@@ -298,6 +386,17 @@ select {
   border-radius: 10px;
   padding: 10px 12px;
   font: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+textarea {
+  resize: none;
+}
+
+.select-inline {
+  width: auto;
+  min-width: 0;
 }
 
 select {
@@ -318,17 +417,21 @@ select {
   margin: 0;
 }
 
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 8px;
+.optional {
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 12px;
+  display: grid;
+  gap: 12px;
 }
 
-.checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.optional-title {
+  margin: 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #6b7280;
 }
 
 button {
@@ -349,5 +452,78 @@ button.ghost {
 button:disabled {
   opacity: 0.7;
   cursor: wait;
+}
+
+.favourite-toggle {
+  border: none;
+  background: #e5e7eb;
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 6px;
+  color: #94a3b8;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px #e2e8f0;
+}
+
+.favourite-toggle.active {
+  background: #ffffff;
+  color: #f59e0b;
+  animation: star-pop 240ms ease-out;
+}
+
+.favourite-toggle:hover {
+  color: #f59e0b;
+}
+
+@keyframes star-pop {
+  0% {
+    transform: scale(0.8) rotate(-8deg);
+  }
+  60% {
+    transform: scale(1.15) rotate(6deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .overlay {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .modal {
+    padding: 18px;
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .title {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .form {
+    padding-right: 0;
+  }
+
+  .field {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .field-label {
+    width: auto;
+  }
 }
 </style>

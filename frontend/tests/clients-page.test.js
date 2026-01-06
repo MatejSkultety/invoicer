@@ -30,7 +30,7 @@ beforeEach(() => {
 test('renders clients from the API', async () => {
   listClients.mockResolvedValue([
     {
-      id: 1,
+      id: 'b7c1c8a0-1234-4c66-9a12-123456789abc',
       name: 'Acme Co',
       address: '123 Main St',
       city: 'Prague',
@@ -41,7 +41,7 @@ test('renders clients from the API', async () => {
       ico: null,
       dic: null,
       notes: 'Priority account',
-      favourite: false
+      favourite: true
     }
   ])
 
@@ -49,7 +49,8 @@ test('renders clients from the API', async () => {
   await flushPromises()
 
   expect(wrapper.text()).toContain('Acme Co')
-  expect(wrapper.text()).toContain('hello@acme.test')
+  expect(wrapper.text()).toContain('📧 Email: hello@acme.test')
+  expect(wrapper.text()).toContain('⭐ Favourite')
 })
 
 test('create flow calls the API and shows a toast', async () => {
@@ -68,7 +69,7 @@ test('create flow calls the API and shows a toast', async () => {
   }
 
   listClients.mockResolvedValueOnce([]).mockResolvedValueOnce([{
-    id: 2,
+    id: 'a5f6c8d1-5678-4b21-8b33-abcdef123456',
     ...payload
   }])
   createClient.mockResolvedValue({ id: 2, ...payload })

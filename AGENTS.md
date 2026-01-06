@@ -149,6 +149,7 @@ Frontend is modular by domain:
 - Keep domain UI and API calls in `frontend/src/modules/<module>/`.
 - Keep shared API client/utils/UI in `frontend/src/shared/`.
 - Frontend should not embed backend business rules (backend is source of truth).
+- Frontend features must be responsive for mobile browsers by default.
 
 Database:
 - SQLite now; keep DB configuration externalized (env-driven).

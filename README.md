@@ -58,3 +58,6 @@ This is a monorepo with two containers/services (backend + frontend). Module nam
       └─ modules/
          ├─ clients/
          └─ invoices/
+
+## Frontend responsiveness
+All frontend features should be built to work well on mobile browsers (sensible defaults for small screens).
