@@ -2,15 +2,7 @@ from fastapi import APIRouter, HTTPException, Response, status
 
 from app.core.config import get_settings
 
-from .repository import (
-    EmailConflictError,
-    create_client,
-    get_client,
-    init_db,
-    list_clients,
-    soft_delete_client,
-    update_client,
-)
+from .repository import create_client, get_client, init_db, list_clients, soft_delete_client, update_client
 from .schemas import ClientCreate, ClientOut, ClientUpdate
 
 router = APIRouter(prefix="/api/clients", tags=["clients"])
@@ -31,10 +23,7 @@ def list_clients_route() -> list[ClientOut]:
 
 @router.post("", response_model=ClientOut, status_code=status.HTTP_201_CREATED)
 def create_client_route(payload: ClientCreate) -> ClientOut:
-    try:
-        return create_client(_database_url(), payload)
-    except EmailConflictError:
-        raise HTTPException(status_code=409, detail="Email already exists")
+    return create_client(_database_url(), payload)
 
 
 @router.get("/{client_id}", response_model=ClientOut)
@@ -47,11 +36,7 @@ def get_client_route(client_id: int) -> ClientOut:
 
 @router.put("/{client_id}", response_model=ClientOut)
 def update_client_route(client_id: int, payload: ClientUpdate) -> ClientOut:
-    try:
-        client = update_client(_database_url(), client_id, payload)
-    except EmailConflictError:
-        raise HTTPException(status_code=409, detail="Email already exists")
-
+    client = update_client(_database_url(), client_id, payload)
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
     return client

@@ -8,10 +8,6 @@ from pathlib import Path
 from .schemas import ClientCreate, ClientUpdate
 
 
-class EmailConflictError(Exception):
-    pass
-
-
 def _utc_now() -> str:
     return datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
 
@@ -45,19 +41,20 @@ def init_db(database_url: str) -> None:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 address TEXT NOT NULL,
-                email TEXT NOT NULL,
-                notes TEXT NOT NULL,
+                city TEXT NOT NULL,
+                country TEXT NOT NULL,
+                main_contact_method TEXT NOT NULL,
+                main_contact TEXT NOT NULL,
+                additional_contact TEXT,
+                ico TEXT,
+                dic TEXT,
+                notes TEXT,
+                favourite INTEGER NOT NULL DEFAULT 0,
+                created_by TEXT NOT NULL,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL,
                 deleted_at TEXT
             )
-            """
-        )
-        conn.execute(
-            """
-            CREATE UNIQUE INDEX IF NOT EXISTS clients_email_active_idx
-            ON clients (lower(email))
-            WHERE deleted_at IS NULL
             """
         )
         conn.commit()
@@ -68,8 +65,15 @@ def _row_to_client(row: sqlite3.Row) -> dict:
         "id": row["id"],
         "name": row["name"],
         "address": row["address"],
-        "email": row["email"],
+        "city": row["city"],
+        "country": row["country"],
+        "main_contact_method": row["main_contact_method"],
+        "main_contact": row["main_contact"],
+        "additional_contact": row["additional_contact"],
+        "ico": row["ico"],
+        "dic": row["dic"],
         "notes": row["notes"],
+        "favourite": bool(row["favourite"]),
         "created_at": row["created_at"],
         "updated_at": row["updated_at"],
     }
@@ -79,7 +83,21 @@ def list_clients(database_url: str) -> list[dict]:
     with closing(_connect(database_url)) as conn:
         rows = conn.execute(
             """
-            SELECT id, name, address, email, notes, created_at, updated_at
+            SELECT
+                id,
+                name,
+                address,
+                city,
+                country,
+                main_contact_method,
+                main_contact,
+                additional_contact,
+                ico,
+                dic,
+                notes,
+                favourite,
+                created_at,
+                updated_at
             FROM clients
             WHERE deleted_at IS NULL
             ORDER BY created_at DESC
@@ -93,7 +111,21 @@ def get_client(database_url: str, client_id: int) -> dict | None:
     with closing(_connect(database_url)) as conn:
         row = conn.execute(
             """
-            SELECT id, name, address, email, notes, created_at, updated_at
+            SELECT
+                id,
+                name,
+                address,
+                city,
+                country,
+                main_contact_method,
+                main_contact,
+                additional_contact,
+                ico,
+                dic,
+                notes,
+                favourite,
+                created_at,
+                updated_at
             FROM clients
             WHERE id = ? AND deleted_at IS NULL
             """,
@@ -106,54 +138,48 @@ def get_client(database_url: str, client_id: int) -> dict | None:
     return _row_to_client(row)
 
 
-def email_in_use(database_url: str, email: str, exclude_id: int | None = None) -> bool:
-    with closing(_connect(database_url)) as conn:
-        if exclude_id is None:
-            row = conn.execute(
-                """
-                SELECT 1
-                FROM clients
-                WHERE lower(email) = lower(?) AND deleted_at IS NULL
-                """,
-                (email,),
-            ).fetchone()
-        else:
-            row = conn.execute(
-                """
-                SELECT 1
-                FROM clients
-                WHERE lower(email) = lower(?) AND deleted_at IS NULL AND id != ?
-                """,
-                (email, exclude_id),
-            ).fetchone()
-
-    return row is not None
-
-
 def create_client(database_url: str, payload: ClientCreate) -> dict:
-    if email_in_use(database_url, payload.email):
-        raise EmailConflictError()
-
     now = _utc_now()
+    created_by = _current_user()
     with closing(_connect(database_url)) as conn:
-        try:
-            cursor = conn.execute(
-                """
-                INSERT INTO clients (name, address, email, notes, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    payload.name,
-                    payload.address,
-                    payload.email,
-                    payload.notes,
-                    now,
-                    now,
-                ),
+        cursor = conn.execute(
+            """
+            INSERT INTO clients (
+                name,
+                address,
+                city,
+                country,
+                main_contact_method,
+                main_contact,
+                additional_contact,
+                ico,
+                dic,
+                notes,
+                favourite,
+                created_by,
+                created_at,
+                updated_at
             )
-            conn.commit()
-        except sqlite3.IntegrityError as exc:
-            raise EmailConflictError() from exc
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                payload.name,
+                payload.address,
+                payload.city,
+                payload.country,
+                payload.main_contact_method.value,
+                payload.main_contact,
+                payload.additional_contact,
+                payload.ico,
+                payload.dic,
+                payload.notes,
+                int(payload.favourite),
+                created_by,
+                now,
+                now,
+            ),
+        )
+        conn.commit()
 
         client_id = cursor.lastrowid
 
@@ -165,30 +191,43 @@ def create_client(database_url: str, payload: ClientCreate) -> dict:
 
 
 def update_client(database_url: str, client_id: int, payload: ClientUpdate) -> dict | None:
-    if email_in_use(database_url, payload.email, exclude_id=client_id):
-        raise EmailConflictError()
-
     now = _utc_now()
     with closing(_connect(database_url)) as conn:
-        try:
-            cursor = conn.execute(
-                """
-                UPDATE clients
-                SET name = ?, address = ?, email = ?, notes = ?, updated_at = ?
-                WHERE id = ? AND deleted_at IS NULL
-                """,
-                (
-                    payload.name,
-                    payload.address,
-                    payload.email,
-                    payload.notes,
-                    now,
-                    client_id,
-                ),
-            )
-            conn.commit()
-        except sqlite3.IntegrityError as exc:
-            raise EmailConflictError() from exc
+        cursor = conn.execute(
+            """
+            UPDATE clients
+            SET
+                name = ?,
+                address = ?,
+                city = ?,
+                country = ?,
+                main_contact_method = ?,
+                main_contact = ?,
+                additional_contact = ?,
+                ico = ?,
+                dic = ?,
+                notes = ?,
+                favourite = ?,
+                updated_at = ?
+            WHERE id = ? AND deleted_at IS NULL
+            """,
+            (
+                payload.name,
+                payload.address,
+                payload.city,
+                payload.country,
+                payload.main_contact_method.value,
+                payload.main_contact,
+                payload.additional_contact,
+                payload.ico,
+                payload.dic,
+                payload.notes,
+                int(payload.favourite),
+                now,
+                client_id,
+            ),
+        )
+        conn.commit()
 
         if cursor.rowcount == 0:
             return None
@@ -210,3 +249,13 @@ def soft_delete_client(database_url: str, client_id: int) -> bool:
         conn.commit()
 
     return cursor.rowcount > 0
+
+
+def _current_user() -> str:
+    """Return the current user identifier for audit fields.
+
+    TODO: replace this stub with real user context once auth is available.
+    The future implementation should derive the user from the request context
+    (or equivalent service layer) and avoid hardcoded defaults.
+    """
+    return "dev"
