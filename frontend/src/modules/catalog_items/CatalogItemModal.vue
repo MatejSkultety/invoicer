@@ -2,6 +2,12 @@
 import { computed, onBeforeUnmount, reactive, watch } from 'vue'
 import { t } from '../../shared/i18n'
 
+const MAX_LENGTHS = {
+  name: 256,
+  description: 1024,
+  unit: 64
+}
+
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -166,18 +172,32 @@ function validate() {
   clearErrors()
   let valid = true
 
-  if (!form.name.trim()) {
+  const nameValue = form.name.trim()
+  if (!nameValue) {
     errors.name = t('catalog.validation.nameRequired')
     valid = false
-  }
-
-  if (!form.description.trim()) {
-    errors.description = t('catalog.validation.descriptionRequired')
+  } else if (nameValue.length > MAX_LENGTHS.name) {
+    errors.name = t('catalog.validation.nameTooLong', { max: MAX_LENGTHS.name })
     valid = false
   }
 
-  if (!form.unit.trim()) {
+  const descriptionValue = form.description.trim()
+  if (!descriptionValue) {
+    errors.description = t('catalog.validation.descriptionRequired')
+    valid = false
+  } else if (descriptionValue.length > MAX_LENGTHS.description) {
+    errors.description = t('catalog.validation.descriptionTooLong', {
+      max: MAX_LENGTHS.description
+    })
+    valid = false
+  }
+
+  const unitValue = form.unit.trim()
+  if (!unitValue) {
     errors.unit = t('catalog.validation.unitRequired')
+    valid = false
+  } else if (unitValue.length > MAX_LENGTHS.unit) {
+    errors.unit = t('catalog.validation.unitTooLong', { max: MAX_LENGTHS.unit })
     valid = false
   }
 
@@ -240,7 +260,13 @@ function submit() {
         <label class="field">
           <span class="field-label">{{ t('catalog.fields.name') }}</span>
           <div class="field-control">
-            <input v-model="form.name" name="name" type="text" autocomplete="off" />
+            <input
+              v-model="form.name"
+              name="name"
+              type="text"
+              autocomplete="off"
+              maxlength="256"
+            />
             <span v-if="errors.name" class="error">{{ errors.name }}</span>
           </div>
         </label>
@@ -248,7 +274,7 @@ function submit() {
         <label class="field">
           <span class="field-label">{{ t('catalog.fields.description') }}</span>
           <div class="field-control">
-            <textarea v-model="form.description" name="description" rows="3"></textarea>
+            <textarea v-model="form.description" name="description" rows="3" maxlength="1024"></textarea>
             <span v-if="errors.description" class="error">{{ errors.description }}</span>
           </div>
         </label>
@@ -256,7 +282,13 @@ function submit() {
         <label class="field">
           <span class="field-label">{{ t('catalog.fields.unit') }}</span>
           <div class="field-control">
-            <input v-model="form.unit" name="unit" type="text" autocomplete="off" />
+            <input
+              v-model="form.unit"
+              name="unit"
+              type="text"
+              autocomplete="off"
+              maxlength="64"
+            />
             <span v-if="errors.unit" class="error">{{ errors.unit }}</span>
           </div>
         </label>

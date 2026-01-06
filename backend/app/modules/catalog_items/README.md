@@ -13,8 +13,8 @@ Base path: `/api/catalog-items`
 Fields:
 - `id` uuid (text)
 - `name` text (required, max 256)
-- `description` text (required)
-- `unit` text (required)
+- `description` text (required, max 1024)
+- `unit` text (required, max 64)
 - `unit_price` integer (required, minor currency units)
 - `tax_rate` integer (optional)
 - `created_at` text

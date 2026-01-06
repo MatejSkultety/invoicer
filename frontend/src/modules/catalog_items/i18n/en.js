@@ -26,8 +26,11 @@ export default {
   },
   validation: {
     nameRequired: 'Name is required',
+    nameTooLong: 'Name must be at most {max} characters',
     descriptionRequired: 'Description is required',
+    descriptionTooLong: 'Description must be at most {max} characters',
     unitRequired: 'Unit is required',
+    unitTooLong: 'Unit must be at most {max} characters',
     unitPriceRequired: 'Price is required',
     unitPriceInvalid: 'Enter a valid price with up to 2 decimals',
     taxRateInvalid: 'Tax rate must be a whole number'

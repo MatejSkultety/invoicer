@@ -15,6 +15,7 @@ UI behavior:
 Form fields:
 - Required: name, description, unit, unit price.
 - Optional: tax rate.
+- Max lengths: name 256, description 1024, unit 64.
 
 I18n:
 - Module strings live in `frontend/src/modules/catalog_items/i18n/en.js`.

@@ -42,3 +42,20 @@ test('emits trimmed payload on submit', async () => {
     tax_rate: 21
   })
 })
+
+test('shows validation errors for max length', async () => {
+  const wrapper = mount(CatalogItemModal, {
+    props: {
+      modelValue: true
+    }
+  })
+
+  await wrapper.find('input[name="name"]').setValue('Design work')
+  await wrapper.find('textarea[name="description"]').setValue('a'.repeat(1025))
+  await wrapper.find('input[name="unit"]').setValue('hour')
+  await wrapper.find('input[name="unit_price"]').setValue('12.00')
+
+  await wrapper.find('form').trigger('submit')
+
+  expect(wrapper.text()).toContain('Description must be at most 1024 characters')
+})

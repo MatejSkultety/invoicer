@@ -72,3 +72,11 @@ def test_name_too_long_returns_validation_error(client, sample_payload):
 
     response = client.post("/api/catalog-items", json=bad_payload)
     assert response.status_code == 422
+
+
+def test_description_too_long_returns_validation_error(client, sample_payload):
+    bad_payload = dict(sample_payload)
+    bad_payload["description"] = "a" * 1025
+
+    response = client.post("/api/catalog-items", json=bad_payload)
+    assert response.status_code == 422

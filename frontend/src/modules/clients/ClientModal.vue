@@ -2,6 +2,18 @@
 import { computed, onBeforeUnmount, reactive, watch } from 'vue'
 import { t } from '../../shared/i18n'
 
+const MAX_LENGTHS = {
+  name: 256,
+  address: 256,
+  city: 128,
+  country: 128,
+  main_contact: 256,
+  additional_contact: 256,
+  ico: 32,
+  dic: 32,
+  notes: 1024
+}
+
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -43,7 +55,11 @@ const errors = reactive({
   city: '',
   country: '',
   main_contact_method: '',
-  main_contact: ''
+  main_contact: '',
+  additional_contact: '',
+  ico: '',
+  dic: '',
+  notes: ''
 })
 
 const isEdit = computed(() => Boolean(props.client))
@@ -74,6 +90,10 @@ function clearErrors() {
   errors.country = ''
   errors.main_contact_method = ''
   errors.main_contact = ''
+  errors.additional_contact = ''
+  errors.ico = ''
+  errors.dic = ''
+  errors.notes = ''
 }
 
 watch(
@@ -111,23 +131,39 @@ function validate() {
   clearErrors()
   let valid = true
 
-  if (!form.name.trim()) {
+  const nameValue = form.name.trim()
+  if (!nameValue) {
     errors.name = t('clients.validation.nameRequired')
     valid = false
+  } else if (nameValue.length > MAX_LENGTHS.name) {
+    errors.name = t('clients.validation.nameTooLong', { max: MAX_LENGTHS.name })
+    valid = false
   }
 
-  if (!form.address.trim()) {
+  const addressValue = form.address.trim()
+  if (!addressValue) {
     errors.address = t('clients.validation.addressRequired')
     valid = false
-  }
-
-  if (!form.city.trim()) {
-    errors.city = t('clients.validation.cityRequired')
+  } else if (addressValue.length > MAX_LENGTHS.address) {
+    errors.address = t('clients.validation.addressTooLong', { max: MAX_LENGTHS.address })
     valid = false
   }
 
-  if (!form.country.trim()) {
+  const cityValue = form.city.trim()
+  if (!cityValue) {
+    errors.city = t('clients.validation.cityRequired')
+    valid = false
+  } else if (cityValue.length > MAX_LENGTHS.city) {
+    errors.city = t('clients.validation.cityTooLong', { max: MAX_LENGTHS.city })
+    valid = false
+  }
+
+  const countryValue = form.country.trim()
+  if (!countryValue) {
     errors.country = t('clients.validation.countryRequired')
+    valid = false
+  } else if (countryValue.length > MAX_LENGTHS.country) {
+    errors.country = t('clients.validation.countryTooLong', { max: MAX_LENGTHS.country })
     valid = false
   }
 
@@ -136,8 +172,43 @@ function validate() {
     valid = false
   }
 
-  if (!form.main_contact.trim()) {
+  const mainContactValue = form.main_contact.trim()
+  if (!mainContactValue) {
     errors.main_contact = t('clients.validation.mainContactRequired')
+    valid = false
+  } else if (mainContactValue.length > MAX_LENGTHS.main_contact) {
+    errors.main_contact = t('clients.validation.mainContactTooLong', {
+      max: MAX_LENGTHS.main_contact
+    })
+    valid = false
+  }
+
+  const additionalContactValue = form.additional_contact.trim()
+  if (
+    additionalContactValue &&
+    additionalContactValue.length > MAX_LENGTHS.additional_contact
+  ) {
+    errors.additional_contact = t('clients.validation.additionalContactTooLong', {
+      max: MAX_LENGTHS.additional_contact
+    })
+    valid = false
+  }
+
+  const icoValue = form.ico.trim()
+  if (icoValue && icoValue.length > MAX_LENGTHS.ico) {
+    errors.ico = t('clients.validation.icoTooLong', { max: MAX_LENGTHS.ico })
+    valid = false
+  }
+
+  const dicValue = form.dic.trim()
+  if (dicValue && dicValue.length > MAX_LENGTHS.dic) {
+    errors.dic = t('clients.validation.dicTooLong', { max: MAX_LENGTHS.dic })
+    valid = false
+  }
+
+  const notesValue = form.notes.trim()
+  if (notesValue && notesValue.length > MAX_LENGTHS.notes) {
+    errors.notes = t('clients.validation.notesTooLong', { max: MAX_LENGTHS.notes })
     valid = false
   }
 
@@ -199,7 +270,7 @@ function submit() {
         <label class="field">
           <span class="field-label">{{ t('clients.fields.name') }}</span>
           <div class="field-control">
-            <input v-model="form.name" name="name" type="text" autocomplete="name" />
+            <input v-model="form.name" name="name" type="text" autocomplete="name" maxlength="256" />
             <span v-if="errors.name" class="error">{{ errors.name }}</span>
           </div>
         </label>
@@ -207,7 +278,13 @@ function submit() {
         <label class="field">
           <span class="field-label">{{ t('clients.fields.address') }}</span>
           <div class="field-control">
-            <input v-model="form.address" name="address" type="text" autocomplete="street-address" />
+            <input
+              v-model="form.address"
+              name="address"
+              type="text"
+              autocomplete="street-address"
+              maxlength="256"
+            />
             <span v-if="errors.address" class="error">{{ errors.address }}</span>
           </div>
         </label>
@@ -215,7 +292,13 @@ function submit() {
         <label class="field">
           <span class="field-label">{{ t('clients.fields.city') }}</span>
           <div class="field-control">
-            <input v-model="form.city" name="city" type="text" autocomplete="address-level2" />
+            <input
+              v-model="form.city"
+              name="city"
+              type="text"
+              autocomplete="address-level2"
+              maxlength="128"
+            />
             <span v-if="errors.city" class="error">{{ errors.city }}</span>
           </div>
         </label>
@@ -223,7 +306,13 @@ function submit() {
         <label class="field">
           <span class="field-label">{{ t('clients.fields.country') }}</span>
           <div class="field-control">
-            <input v-model="form.country" name="country" type="text" autocomplete="country-name" />
+            <input
+              v-model="form.country"
+              name="country"
+              type="text"
+              autocomplete="country-name"
+              maxlength="128"
+            />
             <span v-if="errors.country" class="error">{{ errors.country }}</span>
           </div>
         </label>
@@ -247,7 +336,7 @@ function submit() {
         <label class="field">
           <span class="field-label">{{ t('clients.fields.mainContact') }}</span>
           <div class="field-control">
-            <input v-model="form.main_contact" name="main_contact" type="text" />
+            <input v-model="form.main_contact" name="main_contact" type="text" maxlength="256" />
             <span v-if="errors.main_contact" class="error">{{ errors.main_contact }}</span>
           </div>
         </label>
@@ -258,28 +347,39 @@ function submit() {
           <label class="field">
             <span class="field-label">{{ t('clients.fields.additionalContact') }}</span>
             <div class="field-control">
-              <input v-model="form.additional_contact" name="additional_contact" type="text" />
+              <input
+                v-model="form.additional_contact"
+                name="additional_contact"
+                type="text"
+                maxlength="256"
+              />
+              <span v-if="errors.additional_contact" class="error">
+                {{ errors.additional_contact }}
+              </span>
             </div>
           </label>
 
           <label class="field">
             <span class="field-label">{{ t('clients.fields.ico') }}</span>
             <div class="field-control">
-              <input v-model="form.ico" name="ico" type="text" />
+              <input v-model="form.ico" name="ico" type="text" maxlength="32" />
+              <span v-if="errors.ico" class="error">{{ errors.ico }}</span>
             </div>
           </label>
 
           <label class="field">
             <span class="field-label">{{ t('clients.fields.dic') }}</span>
             <div class="field-control">
-              <input v-model="form.dic" name="dic" type="text" />
+              <input v-model="form.dic" name="dic" type="text" maxlength="32" />
+              <span v-if="errors.dic" class="error">{{ errors.dic }}</span>
             </div>
           </label>
 
           <label class="field">
             <span class="field-label">{{ t('clients.fields.notes') }}</span>
             <div class="field-control">
-              <textarea v-model="form.notes" name="notes" rows="4"></textarea>
+              <textarea v-model="form.notes" name="notes" rows="4" maxlength="1024"></textarea>
+              <span v-if="errors.notes" class="error">{{ errors.notes }}</span>
             </div>
           </label>
         </div>

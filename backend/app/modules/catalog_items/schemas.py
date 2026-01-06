@@ -3,6 +3,14 @@ from typing import Any
 from pydantic import BaseModel, field_validator
 
 MAX_NAME_LENGTH = 256
+MAX_DESCRIPTION_LENGTH = 1024
+MAX_UNIT_LENGTH = 64
+
+
+def _validate_length(value: str, max_len: int, label: str) -> str:
+    if len(value) > max_len:
+        raise ValueError(f"{label} must be at most {max_len} characters")
+    return value
 
 
 class CatalogItemRequired(BaseModel):
@@ -24,9 +32,17 @@ class CatalogItemRequired(BaseModel):
     @field_validator("name")
     @classmethod
     def validate_name_length(cls, value: str) -> str:
-        if len(value) > MAX_NAME_LENGTH:
-            raise ValueError(f"Must be at most {MAX_NAME_LENGTH} characters")
-        return value
+        return _validate_length(value, MAX_NAME_LENGTH, "Name")
+
+    @field_validator("description")
+    @classmethod
+    def validate_description_length(cls, value: str) -> str:
+        return _validate_length(value, MAX_DESCRIPTION_LENGTH, "Description")
+
+    @field_validator("unit")
+    @classmethod
+    def validate_unit_length(cls, value: str) -> str:
+        return _validate_length(value, MAX_UNIT_LENGTH, "Unit")
 
     @field_validator("unit_price", mode="before")
     @classmethod

@@ -16,6 +16,7 @@ UI behavior:
 Form fields:
 - Required: name, address, city, country, main contact method, main contact.
 - Optional: additional contact, IČO, DIČ, notes.
+- Max lengths: name/address 256, city/country 128, main contact/additional contact 256, IČO/DIČ 32, notes 1024.
 
 I18n:
 - Module strings live in `frontend/src/modules/clients/i18n/en.js`.

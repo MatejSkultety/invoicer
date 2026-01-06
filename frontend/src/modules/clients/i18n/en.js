@@ -37,11 +37,20 @@ export default {
   },
   validation: {
     nameRequired: 'Name is required',
+    nameTooLong: 'Name must be at most {max} characters',
     addressRequired: 'Address is required',
+    addressTooLong: 'Address must be at most {max} characters',
     cityRequired: 'City is required',
+    cityTooLong: 'City must be at most {max} characters',
     countryRequired: 'Country is required',
+    countryTooLong: 'Country must be at most {max} characters',
     contactMethodRequired: 'Contact method is required',
-    mainContactRequired: 'Main contact is required'
+    mainContactRequired: 'Main contact is required',
+    mainContactTooLong: 'Main contact must be at most {max} characters',
+    additionalContactTooLong: 'Additional contact must be at most {max} characters',
+    icoTooLong: 'IČO must be at most {max} characters',
+    dicTooLong: 'DIČ must be at most {max} characters',
+    notesTooLong: 'Notes must be at most {max} characters'
   },
   toasts: {
     created: 'Client created',

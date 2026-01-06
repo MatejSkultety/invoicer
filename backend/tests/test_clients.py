@@ -89,3 +89,11 @@ def test_invalid_contact_method_returns_validation_error(client, sample_payload)
 
     response = client.post("/api/clients", json=bad_payload)
     assert response.status_code == 422
+
+
+def test_name_too_long_returns_validation_error(client, sample_payload):
+    bad_payload = dict(sample_payload)
+    bad_payload["name"] = "a" * 257
+
+    response = client.post("/api/clients", json=bad_payload)
+    assert response.status_code == 422
