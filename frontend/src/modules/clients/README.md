@@ -3,12 +3,16 @@
 Route: `/clients`
 
 UI behavior:
-- Lists clients with name, email, address, and notes preview.
-- Create client modal with validation feedback.
+- Lists clients with name, primary contact, address, city/country, and notes preview.
+- Create client modal with validation feedback for required fields and favourite toggle.
 - Edit action reuses the modal with prefilled data.
 - Archive action soft-deletes the client via the API.
 - Success toasts on create/update/archive.
 - Inline error message on API failures.
+
+Form fields:
+- Required: name, address, city, country, main contact method, main contact.
+- Optional: additional contact, IČO, DIČ, notes.
 
 Toast behavior:
 - Uses shared toast store and host in `frontend/src/shared/`.

@@ -14,23 +14,29 @@ Fields:
 - `id` integer
 - `name` text (required)
 - `address` text (required)
-- `email` text (required, unique among non-deleted)
-- `notes` text (required)
+- `city` text (required)
+- `country` text (required)
+- `main_contact_method` text (required, enum: email/whatsapp/discord)
+- `main_contact` text (required)
+- `additional_contact` text (optional)
+- `ico` text (optional)
+- `dic` text (optional)
+- `notes` text (optional)
+- `favourite` boolean (required, defaults false)
 - `created_at` text
 - `updated_at` text
 - `deleted_at` text (nullable, soft delete)
 
-Uniqueness:
-- Enforced with a partial unique index on `lower(email)` for rows with `deleted_at IS NULL`.
-- Guarded in the service layer to return a 409 conflict.
+Internal only:
+- `created_by` text (auto-assigned; not exposed in API responses; currently defaults to `dev`)
 
 ## Manual verify
 1) Run `docker compose up --build`.
 2) `curl -X POST http://localhost:8000/api/clients -H 'Content-Type: application/json' \
-  -d '{"name":"Acme","address":"123 Main","email":"hello@acme.test","notes":"Priority"}'`
+  -d '{"name":"Acme","address":"123 Main","city":"Prague","country":"Czechia","main_contact_method":"email","main_contact":"hello@acme.test","notes":"Priority","favourite":false}'`
 3) `curl http://localhost:8000/api/clients`
 4) `curl -X PUT http://localhost:8000/api/clients/1 -H 'Content-Type: application/json' \
-  -d '{"name":"Acme Co","address":"123 Main","email":"hello@acme.test","notes":"Updated"}'`
+  -d '{"name":"Acme Co","address":"123 Main","city":"Brno","country":"Czechia","main_contact_method":"whatsapp","main_contact":"+420123456789","notes":null,"favourite":true}'`
 5) `curl -X DELETE http://localhost:8000/api/clients/1`
 
 Testing:

@@ -153,6 +153,7 @@ Frontend is modular by domain:
 Database:
 - SQLite now; keep DB configuration externalized (env-driven).
 - Avoid DB-specific assumptions in application logic.
+- Store monetary values as integer cents (no floats) unless explicitly agreed otherwise.
 
 ---
 
