@@ -12,6 +12,8 @@ from app.modules.catalog_items import init_module as init_catalog_items_module
 from app.modules.catalog_items import router as catalog_items_router
 from app.modules.clients import init_module as init_clients_module
 from app.modules.clients import router as clients_router
+from app.modules.users import init_module as init_users_module
+from app.modules.users import router as users_router
 
 
 @asynccontextmanager
@@ -20,6 +22,7 @@ async def lifespan(app: FastAPI):
     try:
         init_clients_module()
         init_catalog_items_module()
+        init_users_module()
     except Exception:
         logger.exception("Startup initialization failed")
         raise
@@ -57,6 +60,7 @@ def create_app() -> FastAPI:
 
     app.include_router(clients_router)
     app.include_router(catalog_items_router)
+    app.include_router(users_router)
 
     return app
 
