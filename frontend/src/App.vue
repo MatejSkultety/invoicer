@@ -13,6 +13,7 @@ import { t } from './shared/i18n'
       </div>
       <nav class="nav">
         <RouterLink to="/clients">{{ t('app.nav.clients') }}</RouterLink>
+        <RouterLink to="/catalog">{{ t('app.nav.catalog') }}</RouterLink>
       </nav>
     </header>
     <main class="content">
@@ -78,6 +79,12 @@ import { t } from './shared/i18n'
   font-weight: 600;
   padding-bottom: 4px;
   border-bottom: 2px solid transparent;
+}
+
+.nav {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .nav a.router-link-active {

@@ -1,11 +1,13 @@
 import { ref } from 'vue'
 import sharedEn from './en'
 import clientsEn from '../../modules/clients/i18n/en'
+import catalogEn from '../../modules/catalog_items/i18n/en'
 
 const messages = {
   en: {
     ...sharedEn,
-    clients: clientsEn
+    clients: clientsEn,
+    catalog: catalogEn
   }
 }
 
