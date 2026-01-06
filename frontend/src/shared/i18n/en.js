@@ -3,7 +3,8 @@ export default {
     title: 'Invoicer',
     tag: 'dev',
     nav: {
-      clients: 'Clients'
+      clients: 'Clients',
+      catalog: 'Catalog'
     }
   },
   common: {

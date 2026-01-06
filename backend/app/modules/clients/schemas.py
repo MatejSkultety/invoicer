@@ -10,6 +10,23 @@ class ContactMethod(str, Enum):
     discord = "discord"
 
 
+MAX_CLIENT_NAME_LENGTH = 256
+MAX_CLIENT_ADDRESS_LENGTH = 256
+MAX_CLIENT_CITY_LENGTH = 128
+MAX_CLIENT_COUNTRY_LENGTH = 128
+MAX_CLIENT_MAIN_CONTACT_LENGTH = 256
+MAX_CLIENT_ADDITIONAL_CONTACT_LENGTH = 256
+MAX_CLIENT_ICO_LENGTH = 32
+MAX_CLIENT_DIC_LENGTH = 32
+MAX_CLIENT_NOTES_LENGTH = 1024
+
+
+def _validate_length(value: str, max_len: int, label: str) -> str:
+    if len(value) > max_len:
+        raise ValueError(f"{label} must be at most {max_len} characters")
+    return value
+
+
 class ClientRequired(BaseModel):
     name: str
     address: str
@@ -35,6 +52,31 @@ class ClientRequired(BaseModel):
             return value.strip().lower()
         return value
 
+    @field_validator("name")
+    @classmethod
+    def validate_name_length(cls, value: str) -> str:
+        return _validate_length(value, MAX_CLIENT_NAME_LENGTH, "Name")
+
+    @field_validator("address")
+    @classmethod
+    def validate_address_length(cls, value: str) -> str:
+        return _validate_length(value, MAX_CLIENT_ADDRESS_LENGTH, "Address")
+
+    @field_validator("city")
+    @classmethod
+    def validate_city_length(cls, value: str) -> str:
+        return _validate_length(value, MAX_CLIENT_CITY_LENGTH, "City")
+
+    @field_validator("country")
+    @classmethod
+    def validate_country_length(cls, value: str) -> str:
+        return _validate_length(value, MAX_CLIENT_COUNTRY_LENGTH, "Country")
+
+    @field_validator("main_contact")
+    @classmethod
+    def validate_main_contact_length(cls, value: str) -> str:
+        return _validate_length(value, MAX_CLIENT_MAIN_CONTACT_LENGTH, "Main contact")
+
 
 class ClientCreate(ClientRequired):
     additional_contact: str | None = None
@@ -53,6 +95,36 @@ class ClientCreate(ClientRequired):
         trimmed = value.strip()
         return trimmed or None
 
+    @field_validator("additional_contact")
+    @classmethod
+    def validate_additional_contact_length(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        return _validate_length(
+            value, MAX_CLIENT_ADDITIONAL_CONTACT_LENGTH, "Additional contact"
+        )
+
+    @field_validator("ico")
+    @classmethod
+    def validate_ico_length(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        return _validate_length(value, MAX_CLIENT_ICO_LENGTH, "ICO")
+
+    @field_validator("dic")
+    @classmethod
+    def validate_dic_length(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        return _validate_length(value, MAX_CLIENT_DIC_LENGTH, "DIC")
+
+    @field_validator("notes")
+    @classmethod
+    def validate_notes_length(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        return _validate_length(value, MAX_CLIENT_NOTES_LENGTH, "Notes")
+
 
 class ClientUpdate(ClientRequired):
     additional_contact: str | None
@@ -70,6 +142,36 @@ class ClientUpdate(ClientRequired):
             raise ValueError("Must be a string")
         trimmed = value.strip()
         return trimmed or None
+
+    @field_validator("additional_contact")
+    @classmethod
+    def validate_additional_contact_length(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        return _validate_length(
+            value, MAX_CLIENT_ADDITIONAL_CONTACT_LENGTH, "Additional contact"
+        )
+
+    @field_validator("ico")
+    @classmethod
+    def validate_ico_length(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        return _validate_length(value, MAX_CLIENT_ICO_LENGTH, "ICO")
+
+    @field_validator("dic")
+    @classmethod
+    def validate_dic_length(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        return _validate_length(value, MAX_CLIENT_DIC_LENGTH, "DIC")
+
+    @field_validator("notes")
+    @classmethod
+    def validate_notes_length(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        return _validate_length(value, MAX_CLIENT_NOTES_LENGTH, "Notes")
 
 
 class ClientOut(ClientRequired):

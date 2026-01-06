@@ -12,16 +12,16 @@ Base path: `/api/clients`
 ## Data model
 Fields:
 - `id` uuid (text)
-- `name` text (required)
-- `address` text (required)
-- `city` text (required)
-- `country` text (required)
+- `name` text (required, max 256)
+- `address` text (required, max 256)
+- `city` text (required, max 128)
+- `country` text (required, max 128)
 - `main_contact_method` text (required, enum: email/whatsapp/discord)
-- `main_contact` text (required)
-- `additional_contact` text (optional)
-- `ico` text (optional)
-- `dic` text (optional)
-- `notes` text (optional)
+- `main_contact` text (required, max 256)
+- `additional_contact` text (optional, max 256)
+- `ico` text (optional, max 32)
+- `dic` text (optional, max 32)
+- `notes` text (optional, max 1024)
 - `favourite` boolean (required, defaults false)
 - `created_at` text
 - `updated_at` text

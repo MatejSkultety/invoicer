@@ -8,6 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
 from app.core.logging import configure_logging
+from app.modules.catalog_items import init_module as init_catalog_items_module
+from app.modules.catalog_items import router as catalog_items_router
 from app.modules.clients import init_module as init_clients_module
 from app.modules.clients import router as clients_router
 
@@ -17,6 +19,7 @@ async def lifespan(app: FastAPI):
     logger = logging.getLogger("app.startup")
     try:
         init_clients_module()
+        init_catalog_items_module()
     except Exception:
         logger.exception("Startup initialization failed")
         raise
@@ -53,6 +56,7 @@ def create_app() -> FastAPI:
         return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
     app.include_router(clients_router)
+    app.include_router(catalog_items_router)
 
     return app
 
