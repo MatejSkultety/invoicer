@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="", case_sensitive=False)
 
+    app_env: str = "dev"
     database_url: str = "sqlite:///./.data/local.db"
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 

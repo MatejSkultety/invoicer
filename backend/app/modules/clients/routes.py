@@ -43,8 +43,8 @@ def update_client_route(client_id: str, payload: ClientUpdate) -> ClientOut:
 
 
 @router.delete("/{client_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_client_route(client_id: str) -> Response:
+def delete_client_route(client_id: str) -> None:
     deleted = soft_delete_client(_database_url(), client_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Client not found")
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    return None
