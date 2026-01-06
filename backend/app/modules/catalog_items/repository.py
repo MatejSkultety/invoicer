@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
-from .schemas import ClientCreate, ClientUpdate
+from .schemas import CatalogItemCreate, CatalogItemUpdate
 
 
 def _utc_now() -> str:
@@ -43,19 +43,13 @@ def init_db(database_url: str) -> None:
     with closing(_connect(database_url)) as conn:
         conn.execute(
             """
-            CREATE TABLE IF NOT EXISTS clients (
+            CREATE TABLE IF NOT EXISTS catalog_items (
                 id TEXT PRIMARY KEY,
                 name TEXT NOT NULL,
-                address TEXT NOT NULL,
-                city TEXT NOT NULL,
-                country TEXT NOT NULL,
-                main_contact_method TEXT NOT NULL,
-                main_contact TEXT NOT NULL,
-                additional_contact TEXT,
-                ico TEXT,
-                dic TEXT,
-                notes TEXT,
-                favourite INTEGER NOT NULL DEFAULT 0,
+                description TEXT NOT NULL,
+                unit TEXT NOT NULL,
+                unit_price INTEGER NOT NULL,
+                tax_rate INTEGER,
                 created_by TEXT NOT NULL,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL,
@@ -66,123 +60,93 @@ def init_db(database_url: str) -> None:
         conn.commit()
 
 
-def _row_to_client(row: sqlite3.Row) -> dict:
+def _row_to_catalog_item(row: sqlite3.Row) -> dict:
     return {
         "id": row["id"],
         "name": row["name"],
-        "address": row["address"],
-        "city": row["city"],
-        "country": row["country"],
-        "main_contact_method": row["main_contact_method"],
-        "main_contact": row["main_contact"],
-        "additional_contact": row["additional_contact"],
-        "ico": row["ico"],
-        "dic": row["dic"],
-        "notes": row["notes"],
-        "favourite": bool(row["favourite"]),
+        "description": row["description"],
+        "unit": row["unit"],
+        "unit_price": row["unit_price"],
+        "tax_rate": row["tax_rate"],
         "created_at": row["created_at"],
         "updated_at": row["updated_at"],
     }
 
 
-def list_clients(database_url: str) -> list[dict]:
+def list_catalog_items(database_url: str) -> list[dict]:
     with closing(_connect(database_url)) as conn:
         rows = conn.execute(
             """
             SELECT
                 id,
                 name,
-                address,
-                city,
-                country,
-                main_contact_method,
-                main_contact,
-                additional_contact,
-                ico,
-                dic,
-                notes,
-                favourite,
+                description,
+                unit,
+                unit_price,
+                tax_rate,
                 created_at,
                 updated_at
-            FROM clients
+            FROM catalog_items
             WHERE deleted_at IS NULL
             ORDER BY created_at DESC
             """
         ).fetchall()
 
-    return [_row_to_client(row) for row in rows]
+    return [_row_to_catalog_item(row) for row in rows]
 
 
-def get_client(database_url: str, client_id: str) -> dict | None:
+def get_catalog_item(database_url: str, item_id: str) -> dict | None:
     with closing(_connect(database_url)) as conn:
         row = conn.execute(
             """
             SELECT
                 id,
                 name,
-                address,
-                city,
-                country,
-                main_contact_method,
-                main_contact,
-                additional_contact,
-                ico,
-                dic,
-                notes,
-                favourite,
+                description,
+                unit,
+                unit_price,
+                tax_rate,
                 created_at,
                 updated_at
-            FROM clients
+            FROM catalog_items
             WHERE id = ? AND deleted_at IS NULL
             """,
-            (client_id,),
+            (item_id,),
         ).fetchone()
 
     if not row:
         return None
 
-    return _row_to_client(row)
+    return _row_to_catalog_item(row)
 
 
-def create_client(database_url: str, payload: ClientCreate) -> dict:
+def create_catalog_item(database_url: str, payload: CatalogItemCreate) -> dict:
     now = _utc_now()
     created_by = _current_user()
-    client_id = str(uuid4())
+    item_id = str(uuid4())
     with closing(_connect(database_url)) as conn:
-        cursor = conn.execute(
+        conn.execute(
             """
-            INSERT INTO clients (
+            INSERT INTO catalog_items (
                 id,
                 name,
-                address,
-                city,
-                country,
-                main_contact_method,
-                main_contact,
-                additional_contact,
-                ico,
-                dic,
-                notes,
-                favourite,
+                description,
+                unit,
+                unit_price,
+                tax_rate,
                 created_by,
                 created_at,
                 updated_at
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
-                client_id,
+                item_id,
                 payload.name,
-                payload.address,
-                payload.city,
-                payload.country,
-                payload.main_contact_method.value,
-                payload.main_contact,
-                payload.additional_contact,
-                payload.ico,
-                payload.dic,
-                payload.notes,
-                int(payload.favourite),
+                payload.description,
+                payload.unit,
+                payload.unit_price,
+                payload.tax_rate,
                 created_by,
                 now,
                 now,
@@ -190,48 +154,36 @@ def create_client(database_url: str, payload: ClientCreate) -> dict:
         )
         conn.commit()
 
-    created = get_client(database_url, client_id)
+    created = get_catalog_item(database_url, item_id)
     if not created:
-        raise RuntimeError("Failed to load created client")
+        raise RuntimeError("Failed to load created catalog item")
 
     return created
 
 
-def update_client(database_url: str, client_id: str, payload: ClientUpdate) -> dict | None:
+def update_catalog_item(database_url: str, item_id: str, payload: CatalogItemUpdate) -> dict | None:
     now = _utc_now()
     with closing(_connect(database_url)) as conn:
         cursor = conn.execute(
             """
-            UPDATE clients
+            UPDATE catalog_items
             SET
                 name = ?,
-                address = ?,
-                city = ?,
-                country = ?,
-                main_contact_method = ?,
-                main_contact = ?,
-                additional_contact = ?,
-                ico = ?,
-                dic = ?,
-                notes = ?,
-                favourite = ?,
+                description = ?,
+                unit = ?,
+                unit_price = ?,
+                tax_rate = ?,
                 updated_at = ?
             WHERE id = ? AND deleted_at IS NULL
             """,
             (
                 payload.name,
-                payload.address,
-                payload.city,
-                payload.country,
-                payload.main_contact_method.value,
-                payload.main_contact,
-                payload.additional_contact,
-                payload.ico,
-                payload.dic,
-                payload.notes,
-                int(payload.favourite),
+                payload.description,
+                payload.unit,
+                payload.unit_price,
+                payload.tax_rate,
                 now,
-                client_id,
+                item_id,
             ),
         )
         conn.commit()
@@ -239,19 +191,19 @@ def update_client(database_url: str, client_id: str, payload: ClientUpdate) -> d
         if cursor.rowcount == 0:
             return None
 
-    return get_client(database_url, client_id)
+    return get_catalog_item(database_url, item_id)
 
 
-def soft_delete_client(database_url: str, client_id: str) -> bool:
+def soft_delete_catalog_item(database_url: str, item_id: str) -> bool:
     now = _utc_now()
     with closing(_connect(database_url)) as conn:
         cursor = conn.execute(
             """
-            UPDATE clients
+            UPDATE catalog_items
             SET deleted_at = ?, updated_at = ?
             WHERE id = ? AND deleted_at IS NULL
             """,
-            (now, now, client_id),
+            (now, now, item_id),
         )
         conn.commit()
 
