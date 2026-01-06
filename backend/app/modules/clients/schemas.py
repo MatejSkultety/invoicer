@@ -78,6 +78,6 @@ class ClientOut(ClientRequired):
     dic: str | None = None
     notes: str | None = None
     favourite: bool
-    id: int
+    id: str
     created_at: str
     updated_at: str

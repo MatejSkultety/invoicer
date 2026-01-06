@@ -27,7 +27,7 @@ def create_client_route(payload: ClientCreate) -> ClientOut:
 
 
 @router.get("/{client_id}", response_model=ClientOut)
-def get_client_route(client_id: int) -> ClientOut:
+def get_client_route(client_id: str) -> ClientOut:
     client = get_client(_database_url(), client_id)
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
@@ -35,7 +35,7 @@ def get_client_route(client_id: int) -> ClientOut:
 
 
 @router.put("/{client_id}", response_model=ClientOut)
-def update_client_route(client_id: int, payload: ClientUpdate) -> ClientOut:
+def update_client_route(client_id: str, payload: ClientUpdate) -> ClientOut:
     client = update_client(_database_url(), client_id, payload)
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
@@ -43,7 +43,7 @@ def update_client_route(client_id: int, payload: ClientUpdate) -> ClientOut:
 
 
 @router.delete("/{client_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_client_route(client_id: int) -> Response:
+def delete_client_route(client_id: str) -> Response:
     deleted = soft_delete_client(_database_url(), client_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Client not found")

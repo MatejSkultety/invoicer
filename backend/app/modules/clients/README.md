@@ -11,7 +11,7 @@ Base path: `/api/clients`
 
 ## Data model
 Fields:
-- `id` integer
+- `id` uuid (text)
 - `name` text (required)
 - `address` text (required)
 - `city` text (required)
@@ -35,9 +35,9 @@ Internal only:
 2) `curl -X POST http://localhost:8000/api/clients -H 'Content-Type: application/json' \
   -d '{"name":"Acme","address":"123 Main","city":"Prague","country":"Czechia","main_contact_method":"email","main_contact":"hello@acme.test","notes":"Priority","favourite":false}'`
 3) `curl http://localhost:8000/api/clients`
-4) `curl -X PUT http://localhost:8000/api/clients/1 -H 'Content-Type: application/json' \
+4) `curl -X PUT http://localhost:8000/api/clients/{id} -H 'Content-Type: application/json' \
   -d '{"name":"Acme Co","address":"123 Main","city":"Brno","country":"Czechia","main_contact_method":"whatsapp","main_contact":"+420123456789","notes":null,"favourite":true}'`
-5) `curl -X DELETE http://localhost:8000/api/clients/1`
+5) `curl -X DELETE http://localhost:8000/api/clients/{id}`
 
 Testing:
 - `pytest`

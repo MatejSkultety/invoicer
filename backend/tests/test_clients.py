@@ -46,6 +46,7 @@ def test_create_list_get_update_delete(client, sample_payload):
     assert len(listed) == 1
     assert listed[0]["main_contact"] == sample_payload["main_contact"]
     assert listed[0]["favourite"] is True
+    assert isinstance(listed[0]["id"], str)
 
     get_response = client.get(f"/api/clients/{client_id}")
     assert get_response.status_code == 200

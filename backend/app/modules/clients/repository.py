@@ -4,6 +4,7 @@ import sqlite3
 from contextlib import closing
 from datetime import datetime
 from pathlib import Path
+from uuid import uuid4
 
 from .schemas import ClientCreate, ClientUpdate
 
@@ -38,7 +39,7 @@ def init_db(database_url: str) -> None:
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS clients (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id TEXT PRIMARY KEY,
                 name TEXT NOT NULL,
                 address TEXT NOT NULL,
                 city TEXT NOT NULL,
@@ -107,7 +108,7 @@ def list_clients(database_url: str) -> list[dict]:
     return [_row_to_client(row) for row in rows]
 
 
-def get_client(database_url: str, client_id: int) -> dict | None:
+def get_client(database_url: str, client_id: str) -> dict | None:
     with closing(_connect(database_url)) as conn:
         row = conn.execute(
             """
@@ -141,10 +142,12 @@ def get_client(database_url: str, client_id: int) -> dict | None:
 def create_client(database_url: str, payload: ClientCreate) -> dict:
     now = _utc_now()
     created_by = _current_user()
+    client_id = str(uuid4())
     with closing(_connect(database_url)) as conn:
         cursor = conn.execute(
             """
             INSERT INTO clients (
+                id,
                 name,
                 address,
                 city,
@@ -160,9 +163,10 @@ def create_client(database_url: str, payload: ClientCreate) -> dict:
                 created_at,
                 updated_at
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
+                client_id,
                 payload.name,
                 payload.address,
                 payload.city,
@@ -181,16 +185,14 @@ def create_client(database_url: str, payload: ClientCreate) -> dict:
         )
         conn.commit()
 
-        client_id = cursor.lastrowid
-
-    created = get_client(database_url, int(client_id))
+    created = get_client(database_url, client_id)
     if not created:
         raise RuntimeError("Failed to load created client")
 
     return created
 
 
-def update_client(database_url: str, client_id: int, payload: ClientUpdate) -> dict | None:
+def update_client(database_url: str, client_id: str, payload: ClientUpdate) -> dict | None:
     now = _utc_now()
     with closing(_connect(database_url)) as conn:
         cursor = conn.execute(
@@ -235,7 +237,7 @@ def update_client(database_url: str, client_id: int, payload: ClientUpdate) -> d
     return get_client(database_url, client_id)
 
 
-def soft_delete_client(database_url: str, client_id: int) -> bool:
+def soft_delete_client(database_url: str, client_id: str) -> bool:
     now = _utc_now()
     with closing(_connect(database_url)) as conn:
         cursor = conn.execute(
