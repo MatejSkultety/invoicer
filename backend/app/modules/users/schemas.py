@@ -22,21 +22,35 @@ def _validate_length(value: str, max_len: int, label: str) -> str:
     return value
 
 
-class UserProfileBase(BaseModel):
+class UserProfileRequired(BaseModel):
     name: str
     address: str
     city: str
     country: str
     trade_licensing_office: str
-    email: str | None = None
-    phone: str | None = None
-    bank: str | None = None
-    iban: str | None = None
-    swift: str | None = None
-    ico: str | None = None
-    dic: str | None = None
+    ico: str
+    dic: str
+    email: str
+    phone: str
+    bank: str
+    iban: str
+    swift: str
 
-    @field_validator("name", "address", "city", "country", "trade_licensing_office", mode="before")
+    @field_validator(
+        "name",
+        "address",
+        "city",
+        "country",
+        "trade_licensing_office",
+        "ico",
+        "dic",
+        "email",
+        "phone",
+        "bank",
+        "iban",
+        "swift",
+        mode="before",
+    )
     @classmethod
     def strip_and_require(cls, value: Any) -> str:
         if not isinstance(value, str):
@@ -45,16 +59,6 @@ class UserProfileBase(BaseModel):
         if not trimmed:
             raise ValueError("Must not be empty")
         return trimmed
-
-    @field_validator("email", "phone", "bank", "iban", "swift", "ico", "dic", mode="before")
-    @classmethod
-    def strip_optional(cls, value: Any) -> str | None:
-        if value is None:
-            return None
-        if not isinstance(value, str):
-            raise ValueError("Must be a string")
-        trimmed = value.strip()
-        return trimmed or None
 
     @field_validator("name")
     @classmethod
@@ -85,59 +89,57 @@ class UserProfileBase(BaseModel):
 
     @field_validator("email")
     @classmethod
-    def validate_email_length(cls, value: str | None) -> str | None:
-        if value is None:
-            return None
+    def validate_email_length(cls, value: str) -> str:
         return _validate_length(value, MAX_EMAIL_LENGTH, "Email")
 
     @field_validator("phone")
     @classmethod
-    def validate_phone_length(cls, value: str | None) -> str | None:
-        if value is None:
-            return None
+    def validate_phone_length(cls, value: str) -> str:
         return _validate_length(value, MAX_PHONE_LENGTH, "Phone")
 
     @field_validator("bank")
     @classmethod
-    def validate_bank_length(cls, value: str | None) -> str | None:
-        if value is None:
-            return None
+    def validate_bank_length(cls, value: str) -> str:
         return _validate_length(value, MAX_BANK_LENGTH, "Bank")
 
     @field_validator("iban")
     @classmethod
-    def validate_iban_length(cls, value: str | None) -> str | None:
-        if value is None:
-            return None
+    def validate_iban_length(cls, value: str) -> str:
         return _validate_length(value, MAX_IBAN_LENGTH, "IBAN")
 
     @field_validator("swift")
     @classmethod
-    def validate_swift_length(cls, value: str | None) -> str | None:
-        if value is None:
-            return None
+    def validate_swift_length(cls, value: str) -> str:
         return _validate_length(value, MAX_SWIFT_LENGTH, "SWIFT")
 
     @field_validator("ico")
     @classmethod
-    def validate_ico_length(cls, value: str | None) -> str | None:
-        if value is None:
-            return None
+    def validate_ico_length(cls, value: str) -> str:
         return _validate_length(value, MAX_ICO_LENGTH, "ICO")
 
     @field_validator("dic")
     @classmethod
-    def validate_dic_length(cls, value: str | None) -> str | None:
-        if value is None:
-            return None
+    def validate_dic_length(cls, value: str) -> str:
         return _validate_length(value, MAX_DIC_LENGTH, "DIC")
 
 
-class UserUpsert(UserProfileBase):
+class UserUpsert(UserProfileRequired):
     pass
 
 
-class UserOut(UserProfileBase):
+class UserOut(BaseModel):
     id: str
+    name: str | None
+    address: str | None
+    city: str | None
+    country: str | None
+    trade_licensing_office: str | None
+    ico: str | None
+    dic: str | None
+    email: str | None
+    phone: str | None
+    bank: str | None
+    iban: str | None
+    swift: str | None
     created_at: str
     updated_at: str

@@ -1,6 +1,7 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import ToastHost from './shared/ToastHost.vue'
+import UsersMenu from './modules/users/UsersMenu.vue'
 import { t } from './shared/i18n'
 </script>
 
@@ -11,10 +12,13 @@ import { t } from './shared/i18n'
         <span class="logo">{{ t('app.title') }}</span>
         <span class="tag">{{ t('app.tag') }}</span>
       </div>
-      <nav class="nav">
-        <RouterLink to="/clients">{{ t('app.nav.clients') }}</RouterLink>
-        <RouterLink to="/catalog">{{ t('app.nav.catalog') }}</RouterLink>
-      </nav>
+      <div class="topbar-actions">
+        <nav class="nav">
+          <RouterLink to="/clients">{{ t('app.nav.clients') }}</RouterLink>
+          <RouterLink to="/catalog">{{ t('app.nav.catalog') }}</RouterLink>
+        </nav>
+        <UsersMenu />
+      </div>
     </header>
     <main class="content">
       <RouterView />
@@ -87,6 +91,12 @@ import { t } from './shared/i18n'
   flex-wrap: wrap;
 }
 
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
 .nav a.router-link-active {
   border-color: #3b82f6;
 }
@@ -101,6 +111,11 @@ import { t } from './shared/i18n'
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+  }
+
+  .topbar-actions {
+    width: 100%;
+    justify-content: space-between;
   }
 }
 </style>

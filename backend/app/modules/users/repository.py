@@ -52,13 +52,13 @@ def init_db(database_url: str) -> None:
                 city TEXT NOT NULL,
                 country TEXT NOT NULL,
                 trade_licensing_office TEXT NOT NULL,
-                ico TEXT,
-                dic TEXT,
-                email TEXT,
-                phone TEXT,
-                bank TEXT,
-                iban TEXT,
-                swift TEXT,
+                ico TEXT NOT NULL,
+                dic TEXT NOT NULL,
+                email TEXT NOT NULL,
+                phone TEXT NOT NULL,
+                bank TEXT NOT NULL,
+                iban TEXT NOT NULL,
+                swift TEXT NOT NULL,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL
             )
@@ -123,15 +123,6 @@ def _row_to_user(row: sqlite3.Row) -> dict:
     }
 
 
-def _is_complete_user(user: dict) -> bool:
-    required_fields = ("name", "address", "city", "country", "trade_licensing_office")
-    for field in required_fields:
-        value = user.get(field)
-        if not isinstance(value, str) or not value.strip():
-            return False
-    return True
-
-
 def get_user(database_url: str) -> dict | None:
     with closing(_connect(database_url)) as conn:
         row = conn.execute(
@@ -161,10 +152,7 @@ def get_user(database_url: str) -> dict | None:
     if not row:
         return None
 
-    user = _row_to_user(row)
-    if not _is_complete_user(user):
-        return None
-    return user
+    return _row_to_user(row)
 
 
 def upsert_user(database_url: str, payload: UserUpsert) -> dict:
