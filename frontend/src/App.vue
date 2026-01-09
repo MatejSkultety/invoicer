@@ -1,13 +1,17 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { computed } from 'vue'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
 import ToastHost from './shared/ToastHost.vue'
 import UsersMenu from './modules/users/UsersMenu.vue'
 import { t } from './shared/i18n'
+
+const route = useRoute()
+const showChrome = computed(() => !route.meta?.hideChrome)
 </script>
 
 <template>
   <div class="app">
-    <header class="topbar">
+    <header v-if="showChrome" class="topbar">
       <div class="brand">
         <span class="logo">{{ t('app.title') }}</span>
         <span class="tag">{{ t('app.tag') }}</span>

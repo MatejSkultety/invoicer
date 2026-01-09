@@ -26,6 +26,10 @@ const props = defineProps({
     type: Object,
     default: null
   },
+  closable: {
+    type: Boolean,
+    default: true
+  },
   loading: {
     type: Boolean,
     default: false
@@ -80,18 +84,18 @@ const canEdit = computed(() => Boolean(props.profile) && !props.loading && !prop
 
 function resetForm() {
   const source = props.profile
-  form.name = source ? source.name : ''
-  form.address = source ? source.address : ''
-  form.city = source ? source.city : ''
-  form.country = source ? source.country : ''
-  form.trade_licensing_office = source ? source.trade_licensing_office : ''
-  form.ico = source ? source.ico || '' : ''
-  form.dic = source ? source.dic || '' : ''
-  form.email = source ? source.email || '' : ''
-  form.phone = source ? source.phone || '' : ''
-  form.bank = source ? source.bank || '' : ''
-  form.iban = source ? source.iban || '' : ''
-  form.swift = source ? source.swift || '' : ''
+  form.name = source?.name ?? ''
+  form.address = source?.address ?? ''
+  form.city = source?.city ?? ''
+  form.country = source?.country ?? ''
+  form.trade_licensing_office = source?.trade_licensing_office ?? ''
+  form.ico = source?.ico ?? ''
+  form.dic = source?.dic ?? ''
+  form.email = source?.email ?? ''
+  form.phone = source?.phone ?? ''
+  form.bank = source?.bank ?? ''
+  form.iban = source?.iban ?? ''
+  form.swift = source?.swift ?? ''
   clearErrors()
 }
 
@@ -115,7 +119,9 @@ watch(
   (open) => {
     if (open) {
       resetForm()
-      window.addEventListener('keydown', onKeydown)
+      if (props.closable) {
+        window.addEventListener('keydown', onKeydown)
+      }
     } else {
       window.removeEventListener('keydown', onKeydown)
     }
@@ -136,7 +142,7 @@ onBeforeUnmount(() => {
 })
 
 function onKeydown(event) {
-  if (event.key === 'Escape') {
+  if (event.key === 'Escape' && props.closable) {
     close()
   }
 }
@@ -182,6 +188,9 @@ function validate() {
 }
 
 function close() {
+  if (!props.closable) {
+    return
+  }
   emit('update:modelValue', false)
 }
 
@@ -222,7 +231,15 @@ function submit() {
           <button type="submit" form="user-profile-form" :disabled="submitting || !canEdit">
             {{ submitting ? t('common.saving') : t('common.save') }}
           </button>
-          <button type="button" class="close" :aria-label="t('common.cancel')" @click="close">✕</button>
+          <button
+            v-if="closable"
+            type="button"
+            class="close"
+            :aria-label="t('common.cancel')"
+            @click="close"
+          >
+            ✕
+          </button>
         </div>
       </header>
 
