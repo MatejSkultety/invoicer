@@ -3,7 +3,7 @@ import HomePage from './modules/home/HomePage.vue'
 import ClientsPage from './modules/clients/ClientsPage.vue'
 import CatalogItemsPage from './modules/catalog_items/CatalogItemsPage.vue'
 import SetupProfilePage from './modules/users/SetupProfilePage.vue'
-import { hasCompleteProfile } from './modules/users/profile'
+import { hasCompleteProfile, refreshProfileStatus } from './modules/users/profile'
 
 const routes = [
   { path: '/', component: HomePage },
@@ -18,15 +18,17 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to) => {
+  const ready = to.path === '/setup'
+    ? await refreshProfileStatus()
+    : await hasCompleteProfile()
+
   if (to.path === '/setup') {
-    const ready = await hasCompleteProfile()
     if (ready) {
       return { path: '/' }
     }
     return true
   }
 
-  const ready = await hasCompleteProfile()
   if (!ready) {
     return { path: '/setup' }
   }

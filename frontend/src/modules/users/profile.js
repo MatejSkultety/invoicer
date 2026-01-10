@@ -15,6 +15,8 @@ export const REQUIRED_FIELDS = [
   'swift'
 ]
 
+let cachedComplete = null
+
 export function emptyProfile() {
   return REQUIRED_FIELDS.reduce((profile, field) => {
     profile[field] = ''
@@ -38,11 +40,32 @@ export function isProfileComplete(profile) {
   })
 }
 
-export async function hasCompleteProfile() {
+export function getCachedProfileStatus() {
+  return cachedComplete
+}
+
+export function clearProfileStatusCache() {
+  cachedComplete = null
+}
+
+export function setProfileStatusCache(value) {
+  cachedComplete = value
+}
+
+export async function refreshProfileStatus() {
   try {
     const profile = await getCurrentUser()
-    return isProfileComplete(profile)
+    cachedComplete = isProfileComplete(profile)
   } catch (error) {
-    return false
+    cachedComplete = null
   }
+  return cachedComplete
+}
+
+export async function hasCompleteProfile() {
+  if (cachedComplete !== null) {
+    return cachedComplete
+  }
+
+  return refreshProfileStatus()
 }

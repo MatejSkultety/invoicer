@@ -5,7 +5,7 @@ import { t } from '../../shared/i18n'
 import { useToast } from '../../shared/toast'
 import UserProfileModal from './UserProfileModal.vue'
 import { getCurrentUser, updateCurrentUser } from './api'
-import { emptyProfile, isProfileComplete, normalizeProfile } from './profile'
+import { emptyProfile, isProfileComplete, normalizeProfile, refreshProfileStatus } from './profile'
 
 const router = useRouter()
 const { addToast } = useToast()
@@ -47,6 +47,7 @@ async function handleSubmit(payload) {
 
   try {
     await updateCurrentUser(payload)
+    await refreshProfileStatus()
     addToast(t('users.toasts.updated'))
     router.replace('/')
   } catch (error) {

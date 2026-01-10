@@ -1,8 +1,9 @@
 <script setup>
-import { onBeforeUnmount, ref, watch } from 'vue'
+import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { t } from '../../shared/i18n'
 import { useToast } from '../../shared/toast'
 import { getCurrentUser, updateCurrentUser } from './api'
+import { refreshProfileStatus } from './profile'
 import UserProfileModal from './UserProfileModal.vue'
 
 const menuOpen = ref(false)
@@ -49,6 +50,7 @@ async function handleSubmit(payload) {
   submitError.value = ''
   try {
     profile.value = await updateCurrentUser(payload)
+    await refreshProfileStatus()
     addToast(t('users.toasts.updated'))
     modalOpen.value = false
   } catch (error) {
@@ -75,8 +77,10 @@ function onKeydown(event) {
 
 watch(menuOpen, (open) => {
   if (open) {
-    document.addEventListener('click', onDocumentClick)
-    document.addEventListener('keydown', onKeydown)
+    nextTick(() => {
+      document.addEventListener('click', onDocumentClick)
+      document.addEventListener('keydown', onKeydown)
+    })
   } else {
     document.removeEventListener('click', onDocumentClick)
     document.removeEventListener('keydown', onKeydown)
