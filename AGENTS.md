@@ -125,7 +125,7 @@ Do not introduce a new directory layout without discussing it first.
 ## 4) Branch + thread workflow (mandatory)
 
 For each feature:
-1) Create branch: `feature/<module>-<short-desc>`
+1) Create branch: `feat/<module>-<short-desc>`
 2) Use a fresh AI thread for that feature
 3) Follow ASK-FIRST protocol
 4) Implement code + tests + docs updates
